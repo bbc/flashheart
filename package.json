@@ -1,0 +1,62 @@
+{
+  "name": "flashheart",
+  "version": "1.0.0",
+  "description": "REST client for communicating with HTTP services",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha",
+    "lint": "jshint .",
+    "coverage": "istanbul cover _mocha -- -R dot"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/bbc/flashheart.git"
+  },
+  "keywords": [
+    "rest client",
+    "rest",
+    "http",
+    "json",
+    "client"
+  ],
+  "author": "ibl-team@lists.forge.bbc.co.uk",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bbc/flashheart/issues"
+  },
+  "homepage": "https://github.com/bbc/flashheart#readme",
+  "devDependencies": {
+    "async": "^1.4.2",
+    "chai": "^3.2.0",
+    "istanbul": "^0.3.22",
+    "jshint": "^2.8.0",
+    "mocha": "^2.2.5",
+    "nock": "^2.6.0",
+    "sinon": "^1.15.3"
+  },
+  "jshintConfig": {
+    "quotmark": "single",
+    "unused": true,
+    "undef": true,
+    "node": true,
+    "esnext": true,
+    "globals": {
+      "describe": false,
+      "it": false,
+      "before": false,
+      "beforeEach": false,
+      "after": false,
+      "afterEach": false
+    }
+  },
+  "dependencies": {
+    "catbox": "^4.3.0",
+    "catbox-memory": "^1.1.2",
+    "forever-agent": "^0.6.1",
+    "levee": "^1.2.0",
+    "lodash": "^3.9.3",
+    "request": "^2.57.0",
+    "retry": "^0.6.1",
+    "wreck": "^5.6.0"
+  }
+}
