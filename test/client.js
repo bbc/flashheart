@@ -202,7 +202,7 @@ describe('Rest Client', function () {
       });
 
       server.listen(0);
-      var url = util.format('http://%s:%d', server.address().address, server.address().port);
+      var url = util.format('http://127.0.0.1:%d', server.address().port);
       nock.enableNetConnect(url.replace('http://', ''));
 
       client.get(url, function (err, body) {
