@@ -71,7 +71,7 @@ var client = require('flashheart').createClient({
 The cache varies on _all_ request options (and therefore, headers) by default. If you don't want to vary on a particular header, use the `doNotVary` option:
 
 ```js
-var client = require('@ibl/flashheart').createClient({
+var client = require('flashheart').createClient({
   cache: storage,
   doNotVary: ['Request-Id']
 });
