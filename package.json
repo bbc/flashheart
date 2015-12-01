@@ -1,7 +1,7 @@
 {
   "name": "flashheart",
-  "version": "1.0.0",
-  "description": "REST client for communicating with HTTP services",
+  "version": "1.0.1",
+  "description": "A fully-featured REST client built for ease-of-use and resilience",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
@@ -50,12 +50,9 @@
     }
   },
   "dependencies": {
-    "catbox": "^4.3.0",
-    "catbox-memory": "^1.1.2",
-    "forever-agent": "^0.6.1",
     "levee": "^1.2.0",
     "lodash": "^3.9.3",
-    "request": "^2.57.0",
+    "request": "^2.67.0",
     "retry": "^0.6.1",
     "wreck": "^5.6.0"
   }

@@ -1,8 +1,10 @@
 # flashheart
 
+[![Build Status](https://travis-ci.org/bbc/flashheart.svg)](https://travis-ci.org/bbc/flashheart) [![Code Climate](https://codeclimate.com/github/bbc/flashheart/badges/gpa.svg)](https://codeclimate.com/github/bbc/flashheart)
+
 > A fully-featured Node.js REST client built for ease-of-use and resilience
 
-`flashheart` is built using [request](https://github.com/request/request), but adds all the features you need to build HTTP-based services with confidence.
+`flashheart` is [request](https://github.com/request/request) with batteries included. It provides everything you need to build HTTP-based services with confidence.
 
 ## Installation
 
@@ -43,11 +45,11 @@ The client assumes you're working with a JSON API by default. It uses the `json:
 
 ### Errors
 
-Unlike `request`, any response with a status code greater than or equal to `400` results in an error. There's no need to manually check the status code of the response. The status code is exposed as `err.statusCode` on the returned error object, and the body (if one exists) is set as `err.body`.
+Unlike `request`, any response with a status code greater than or equal to `400` results in an error. There's no need to manually check the status code of the response. The status code is exposed as `err.statusCode` on the returned error object, and the body (if one exists) is assigned to `err.body`.
 
 ### Timeout
 
-The client has a default timeout of _2000 milliseconds_. You can override this when creating a client by setting the `timeout` property in the client options or configuring your own request instance (see [Advanced configuration](#advanced-confiugration))
+The client has a default timeout of _2 seconds_. You can override this when creating a client by setting the `timeout` property.
 
 ```js
 var client = require('flashheart').createClient({
@@ -66,7 +68,7 @@ var client = require('flashheart').createClient({
 });
 ```
 
-The cache varies on all request options (and therefore, headers) by default. If you don't want to vary on a particular header, you can use the `doNotVary` option:
+The cache varies on _all_ request options (and therefore, headers) by default. If you don't want to vary on a particular header, use the `doNotVary` option:
 
 ```js
 var client = require('@ibl/flashheart').createClient({
@@ -104,7 +106,7 @@ The following metrics are sent from each client:
 |----|----|-----------|
 |`{name}.requests`|Counter|Incremented every time a request is made|
 |`{name}.responses.{code}`|Counter|Incremented every time a response is received|
-|`{name}.request_errors`|Counter|Incremented every time a request fails (times out, DNS lookup fails etc.)|
+|`{name}.request_errors`|Counter|Incremented every time a request fails (timeout, DNS lookup fails etc.)|
 |`{name}.response_time`|Timer|Measures of the response time in milliseconds across all requests|
 |`{name}.cache.hits`|Counter|Incremented for each cache hit|
 |`{name}.cache.misses`|Counter|Incremented for each cache miss|
@@ -131,7 +133,7 @@ Only request errors or server errors result in a retry; `4XX` errors are _not_ r
 
 ### Circuit breaker
 
-By default the client implements a circuit breaker using the [Levee](https://github.com/totherik/levee) library. It is configured to trip after 100 failures, trying to reset every 10 seconds. This can be configured using the `circuitBreakerMaxFailures` and `circuitBreakerResetTimeout` properties.
+By default the client implements a circuit breaker using the [Levee](https://github.com/totherik/levee) library. It is configured to trip after 100 failures and resets after 10 seconds. This can be configured using the `circuitBreakerMaxFailures` and `circuitBreakerResetTimeout` properties.
 
 For example to trip after 200 failures and try to reset after 30 seconds:
 
@@ -149,7 +151,6 @@ The client uses [request](https://github.com/request/request) to make HTTP reque
 ```js
 var customRequest = require('request').defaults({
   json: false,
-  timeout: 5000,
   headers: {
     'X-Api-Key': 'foo'
   }
@@ -172,13 +173,14 @@ Creates a new client.
 
 #### Options
 
-* `name` - _optional_ - A name to be used in stats metrics
-* `cache` - _optional_ - A [Catbox](https://github.com/hapijs/catbox) instance to use for caching.
+* `name` - _optional_ - A name to be used for logging and stats (_default `http`_)
+* `cache` - _optional_ - A [Catbox](https://github.com/hapijs/catbox) instance to use for caching
+* `timeout` - _optional_ - A timeout in milliseconds (_default 2000_)
 * `retries` - _optional_ - Number of times to retry failed requests (_default 3_)
 * `retryTimeout` - _optional_ - Time to wait between retries in milliseconds (_default 100_)
 * `circuitBreakerMaxFailures` - _optional_ - The number of failures required to trip the circuit breaker (_default 100_)
-* `circuitBreakerResetTimeout` - _optional_ - Time to in milliseconds to wait before the circuit breaker resets after opening (_default 10000_)
-* `userAgent` - _optional_ - Custom user agent for this client (_default flashheart/VERSION_)
+* `circuitBreakerResetTimeout` - _optional_ - Time in milliseconds to wait before the circuit breaker resets after opening (_default 10000_)
+* `userAgent` - _optional_ - A custom user agent for the client (_default flashheart/VERSION_)
 * `doNotVary` - _optional_ - An array of headers to ignore when creating cache keys (_default_ `[]`)
 * `request` - _optional_ - A pre-configured instance of [`request`](https://github.com/request/request)
 
@@ -188,7 +190,7 @@ Creates a new client.
 
 * `url` - The URL to be requested
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function that is called with an error object and the response body as a JavaScript object
+* `callback` - A function that is called with an error object and the response body as an object
 
 ### `client.put`
 
@@ -197,7 +199,7 @@ Creates a new client.
 * `url` - The URL to be requested
 * `body` - A JavaScript object to be used as the request body
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function that is called with an error object and the response body as a JavaScript object
+* `callback` - A function that is called with an error object and the response body as an object
 
 ### `client.post`
 
@@ -206,7 +208,7 @@ Creates a new client.
 * `url` - The URL to be requested
 * `body` - A JavaScript object to be used as the request body
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function that is called with an error object and the response body as a JavaScript object
+* `callback` - A function that is called with an error object and the response body as an object
 
 ### `client.delete`
 
@@ -214,11 +216,17 @@ Creates a new client.
 
 * `url` - The URL to be requested
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function that is called with an error object and the response body as a JavaScript object
+* `callback` - A function that is called with an error object and the response body as an object
 
 ## Contributing
 
-* If you're unsure if a feature would make a good addition, you can always [create an issue](https://github.com/bbc/flashheart/issues/new) first
-* We aim for 100% test coverage. Please write tests for any new functionality or changes
-* Make sure your code meets our linting standards. Run `npm run lint` to check your code
-* Mainting the existing coding style. There are some settings in `.jsbeautifyrc` to help
+* If you're unsure if a feature would make a good addition, you can always [create an issue](https://github.com/bbc/flashheart/issues/new) first.
+* We aim for 100% test coverage. Please write tests for any new functionality or changes.
+* Make sure your code meets our linting standards. Run `npm run lint` to check your code.
+* Maintain the existing coding style. There are some settings in `.jsbeautifyrc` to help.
+
+## Why Flashheart?
+
+[Lord Flashheart](http://blackadder.wikia.com/wiki/Lord_Flashheart) is [Blackadder](https://en.wikipedia.org/wiki/Blackadder)'s trusted friend, and a massive show-off.
+
+[![Flashheart](http://img.youtube.com/vi/aKfbSHW9uGA/0.jpg)](http://www.youtube.com/watch?v=aKfbSHW9uGA)
