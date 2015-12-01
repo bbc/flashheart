@@ -62,6 +62,8 @@ var client = require('flashheart').createClient({
 The client will optionally cache any publicly cacheable response with a `max-age` directive. You can specify the caching storage with an instance of [Catbox](https://github.com/hapijs/catbox) using the `cache` parameter.
 
 ```js
+var Catbox = require('catbox').Client;
+var Memory = require('catbox-memory');
 var storage = new Catbox(new Memory());
 var client = require('flashheart').createClient({
   cache: storage
