@@ -151,7 +151,7 @@ var client = require('flashheart').createClient({
 The client uses [request](https://github.com/request/request) to make HTTP requests. You can override the default request instance using the `request` parameter:
 
 ```js
-var customRequest = require('request').defaults({
+var request = require('request').defaults({
   json: false,
   headers: {
     'X-Api-Key': 'foo'
@@ -159,7 +159,24 @@ var customRequest = require('request').defaults({
 });
 
 var client = require('flashheart').createClient({
-  request: customRequest
+  request: request
+});
+```
+
+#### Usage with client certificates
+
+The `request` option can also be used to pass a pre-configured request client for HTTPS client certificate authentication:
+
+```js
+var fs = require('fs');
+var request = require('request').defaults({
+  pfx: fs.readFileSync('/path/to/my/cert.p12'),
+  passphrase: 'password',
+  strictSSL: false
+});
+
+var client = require('flashheart').createClient({
+  request: request
 });
 ```
 
