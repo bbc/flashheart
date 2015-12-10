@@ -140,7 +140,7 @@ describe('Rest Client', function () {
       });
     });
 
-    it('increments a request counter counter with the name of the client and feed if provided', function (done) {
+    it('increments a request counter with the name of the client and feed if provided', function (done) {
       var client = Client.createClient({
         name: 'my_client',
         stats: stats
@@ -176,6 +176,22 @@ describe('Rest Client', function () {
       client.get(url, function (err) {
         assert(err);
         sinon.assert.calledWith(stats.increment, 'http.request_errors');
+        done();
+      });
+    });
+
+    it('increments a counter for errors with feed name in it', function (done) {
+      var client = Client.createClient({
+        name: 'my_client',
+        stats: stats
+      });
+      nock.cleanAll();
+
+      client.get(url, {
+        name: 'feed'
+      }, function (err) {
+        assert(err);
+        sinon.assert.calledWith(stats.increment, 'my_client.feed.request_errors');
         done();
       });
     });
@@ -253,6 +269,23 @@ describe('Rest Client', function () {
       client.get(url, function (err) {
         assert.ifError(err);
         sinon.assert.calledWith(stats.timing, 'http.attempts', 2);
+        done();
+      });
+    });
+
+    it('records a timer for the number of attempts to a specific feed timer', function (done) {
+      nockRetries(1);
+      client = Client.createClient({
+        name: 'my_client',
+        stats: stats,
+        retries: 1,
+        retryTimeout: 0
+      });
+      client.get(url, {
+          name: 'feed'
+      }, function (err) {
+        assert.ifError(err);
+        sinon.assert.calledWith(stats.timing, 'my_client.feed.attempts', 2);
         done();
       });
     });
