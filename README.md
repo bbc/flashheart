@@ -1,12 +1,12 @@
 # flashheart
 
+<br/><p align="center"><img width="350" src="https://rawgit.com/bbc/flashheart/master/logo.png?a" alt="Flashheart"></p><br/>
+
 [![Build Status](https://travis-ci.org/bbc/flashheart.svg)](https://travis-ci.org/bbc/flashheart) [![Code Climate](https://codeclimate.com/github/bbc/flashheart/badges/gpa.svg)](https://codeclimate.com/github/bbc/flashheart)
 
 > A fully-featured Node.js REST client built for ease-of-use and resilience
 
 `flashheart` is [request](https://github.com/request/request) with batteries included. It provides everything you need to build HTTP-based services with confidence.
-
-<p align="center"><img width="300" src="https://rawgit.com/bbc/flashheart/master/logo.png?a" alt="Flashheart"></p>
 
 ## Installation
 
