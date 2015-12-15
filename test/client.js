@@ -183,7 +183,9 @@ describe('Rest Client', function () {
     it('increments a counter for errors with feed name in it', function (done) {
       var client = Client.createClient({
         name: 'my_client',
-        stats: stats
+        stats: stats,
+        retries: 0,
+        retryTimeout: 0
       });
       nock.cleanAll();
 
@@ -282,7 +284,7 @@ describe('Rest Client', function () {
         retryTimeout: 0
       });
       client.get(url, {
-          name: 'feed'
+        name: 'feed'
       }, function (err) {
         assert.ifError(err);
         sinon.assert.calledWith(stats.timing, 'my_client.feed.attempts', 2);
@@ -327,7 +329,7 @@ describe('Rest Client', function () {
         stats: stats,
         retries: 0,
         retryTimeout: 0,
-        timeout: 50
+        timeout: 20
       });
 
       nock.cleanAll();
