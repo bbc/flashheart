@@ -6,7 +6,6 @@
 
 `flashheart` is [request](https://github.com/request/request) with batteries included. It provides everything you need to build HTTP-based services with confidence.
 
-<br/>
 <p align="center"><img width="300" src="https://rawgit.com/bbc/flashheart/master/logo.png?a" alt="Flashheart"></p>
 
 ## Installation
