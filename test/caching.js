@@ -23,7 +23,7 @@ describe('Caching', function () {
   };
 
   var expectedKey = {
-    segment: 'rest_client:' + require('../package').version,
+    segment: 'flashheart:' + require('../package').version,
     id: url
   };
 
@@ -196,7 +196,7 @@ describe('Caching', function () {
     };
 
     var keyWithOpts = {
-      segment: 'rest_client:' + require('../package').version,
+      segment: 'flashheart:' + require('../package').version,
       id: url + JSON.stringify(opts)
     };
 
