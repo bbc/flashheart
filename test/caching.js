@@ -47,11 +47,12 @@ describe('Caching', function () {
     client = Client.createClient({
       cache: catbox,
       stats: stats,
-      logger: logger
+      logger: logger,
+      retries: 0
     });
   });
 
-  it('caches response based on max-age header', function (done) {
+  it('caches the response based on its max-age header', function (done) {
     client.get(url, function (err) {
       assert.ifError(err);
       sinon.assert.calledWith(catbox.set, expectedKey, {
@@ -75,6 +76,52 @@ describe('Caching', function () {
       assert.ifError(err);
       assert.deepEqual(body, cachedResponseBody);
       sinon.assert.notCalled(catbox.set, expectedKey);
+      done();
+    });
+  });
+
+  it('caches HTTP error responses', function (done) {
+    var errorResponseBody = {
+      error: 'An error'
+    };
+    var errorHeaders = {
+      'cache-control': 'max-age=5'
+    };
+
+    nock.cleanAll();
+    api.get('/').reply(503, errorResponseBody, errorHeaders);
+    client.get(url, function (err) {
+      assert.ok(err);
+      assert.equal(err.statusCode, 503);
+      sinon.assert.calledWith(catbox.set, expectedKey, {
+        error: {
+          message: 'Received HTTP code 503 for GET http://www.example.com/',
+          statusCode: 503,
+          body: errorResponseBody
+        }
+      });
+      done();
+    });
+  });
+
+  it('returns an error from the cache if it exists', function (done) {
+    var errorResponseBody = {
+      error: 'An error'
+    };
+
+    catbox.get.withArgs(expectedKey).yields(null, {
+      item: {
+        error: {
+          statusCode: 503,
+          message: 'Received HTTP code 503 for GET http://www.example.com/',
+          body: errorResponseBody
+        }
+      }
+    });
+    client.get(url, function (err) {
+      assert.ok(err);
+      assert.equal(err.statusCode, 503);
+      assert.deepEqual(err.body, errorResponseBody);
       done();
     });
   });
