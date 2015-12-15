@@ -54,19 +54,40 @@ describe('Caching', function () {
   it('caches response based on max-age header', function (done) {
     client.get(url, function (err) {
       assert.ifError(err);
-      sinon.assert.calledWith(catbox.set, expectedKey, responseBody, 60000);
+      sinon.assert.calledWith(catbox.set, expectedKey, {
+        body: responseBody
+      }, 60000);
       done();
     });
   });
 
   it('returns the response from the cache if it exists', function (done) {
+    var cachedResponseBody = {
+      foo: 'baz'
+    };
+
     catbox.get.withArgs(expectedKey).yields(null, {
-      item: responseBody
+      item: {
+        body: cachedResponseBody
+      }
     });
     client.get(url, function (err, body) {
       assert.ifError(err);
-      assert.deepEqual(responseBody, body);
+      assert.deepEqual(body, cachedResponseBody);
       sinon.assert.notCalled(catbox.set, expectedKey);
+      done();
+    });
+  });
+
+  it('makes a request when the value stored in the cache doesn\'t contain the response body', function () {
+    catbox.get.withArgs(expectedKey).yields(null, {
+      item: {
+        not: 'the json you were looking for'
+      }
+    });
+    client.get(url, function (err, body) {
+      assert.ifError(err);
+      assert.deepEqual(body, responseBody);
       done();
     });
   });
@@ -75,7 +96,9 @@ describe('Caching', function () {
     catbox.set.withArgs(expectedKey).returns(new Error('Good use of Sheeba!'));
     client.get(url, function (err, body) {
       assert.ifError(err);
-      sinon.assert.calledWith(catbox.set, expectedKey, responseBody, 60000);
+      sinon.assert.calledWith(catbox.set, expectedKey, {
+        body: responseBody
+      }, 60000);
       assert.deepEqual(responseBody, body);
       done();
     });
@@ -103,7 +126,9 @@ describe('Caching', function () {
     catbox.get.withArgs(expectedKey).yields(new Error('Experienced write error. Sheeba Sheeba!'));
     client.get(url, function (err, body) {
       assert.ifError(err);
-      sinon.assert.calledWith(catbox.set, expectedKey, responseBody, 60000);
+      sinon.assert.calledWith(catbox.set, expectedKey, {
+        body: responseBody
+      }, 60000);
       assert.deepEqual(responseBody, body);
       done();
     });
@@ -118,7 +143,7 @@ describe('Caching', function () {
     });
   });
 
-  it('caches response using key comprised of the url and the stringified request options', function (done) {
+  it('caches the response using a key comprised of the url and the stringified request options', function (done) {
     var opts = {
       foo: 'bar'
     };
@@ -130,13 +155,15 @@ describe('Caching', function () {
 
     client.get(url, opts, function (err, body) {
       assert.ifError(err);
-      sinon.assert.calledWith(catbox.set, keyWithOpts, responseBody, 60000);
+      sinon.assert.calledWith(catbox.set, keyWithOpts, {
+        body: responseBody
+      }, 60000);
       assert.deepEqual(responseBody, body);
       done();
     });
   });
 
-  it('does not cache response if the cache-control header is not present', function (done) {
+  it('does not cache the response if the cache-control header is not present', function (done) {
     nock.cleanAll();
     api.get('/').reply(200);
     client.get(url, function (err) {
@@ -146,7 +173,7 @@ describe('Caching', function () {
     });
   });
 
-  it('does not cache response if the max-age value is not present', function (done) {
+  it('does not cache the response if the max-age value is not present', function (done) {
     var headers = {
       'cache-control': ''
     };
@@ -160,7 +187,7 @@ describe('Caching', function () {
     });
   });
 
-  it('does not cache response if the max-age value is zero', function (done) {
+  it('does not cache the response if the max-age value is zero', function (done) {
     var headers = {
       'cache-control': 'max-age=0'
     };
@@ -174,7 +201,7 @@ describe('Caching', function () {
     });
   });
 
-  it('does not cache response if the max-age value is invalid', function (done) {
+  it('does not cache the response if the max-age value is invalid', function (done) {
     var headers = {
       'cache-control': 'max-age=invalid'
     };
@@ -217,7 +244,7 @@ describe('Caching', function () {
       assert.ifError(err);
       sinon.assert.calledWith(catbox.set, sinon.match({
         id: url + JSON.stringify(optsWithoutIgnoredHeaders)
-      }), responseBody, 60000);
+      }), sinon.match.object, 60000);
       assert.deepEqual(responseBody, body);
       done();
     });
@@ -242,7 +269,7 @@ describe('Caching', function () {
       assert.ifError(err);
       sinon.assert.calledWith(catbox.set, sinon.match({
         id: url + JSON.stringify(optsWithoutIgnoredHeaders)
-      }), responseBody, 60000);
+      }), sinon.match.object, 60000);
       assert.deepEqual(responseBody, body);
       done();
     });
@@ -260,7 +287,7 @@ describe('Caching', function () {
       assert.ifError(err);
       sinon.assert.calledWith(catbox.set, sinon.match({
         id: url
-      }), responseBody, 60000);
+      }), sinon.match.object, 60000);
       assert.deepEqual(responseBody, body);
       done();
     });
@@ -296,7 +323,9 @@ describe('Caching', function () {
 
   it('increments a counter for each cache hit', function (done) {
     catbox.get.withArgs(expectedKey).yields(null, {
-      item: responseBody
+      item: {
+        body: responseBody
+      }
     });
     client.get(url, function (err) {
       assert.ifError(err);
