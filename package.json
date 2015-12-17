@@ -14,6 +14,10 @@
   },
   "keywords": [
     "rest client",
+    "flashheart",
+    "cache",
+    "circuit",
+    "breaker",
     "rest",
     "http",
     "json",
