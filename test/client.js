@@ -568,6 +568,56 @@ describe('Rest Client', function () {
     });
   });
 
+  describe('.patch', function () {
+    it('makes a PATCH request', function (done) {
+      api.patch(path, requestBody).reply(204);
+      client.patch(url, requestBody, done);
+    });
+
+    it('returns an error when the API returns a 5XX status code', function (done) {
+      api.patch(path, requestBody).reply(500);
+      client.patch(url, requestBody, function (err) {
+        assert.ok(err);
+        done();
+      });
+    });
+
+    it('retries failed requests', function (done) {
+      client = Client.createClient({
+        retries: 2,
+        retryTimeout: 0
+      });
+      api.patch(path, requestBody).reply(500, responseBody);
+      api.patch(path, requestBody).reply(500, responseBody);
+      api.patch(path, requestBody).reply(204);
+      client.patch(url, requestBody, done);
+    });
+
+    it('trips the circuit breaker when multiple requests fail', function (done) {
+      client = Client.createClient({
+        retries: 0,
+        circuitBreakerMaxFailures: 3
+      });
+
+      nock.cleanAll();
+      api.patch(path).times(6).reply(500);
+
+      async.times(5, function (i, cb) {
+        client.patch(url, {}, function () {
+          // send an empty callback to avoid the error
+          // from stopping the `times`
+          cb();
+        });
+      }, function () {
+        client.patch(url, {}, function (err) {
+          assert(err);
+          assert.include(err.message, 'Circuit breaker is open');
+          done();
+        });
+      });
+    });
+  });
+
   describe('.delete', function () {
     it('makes a DELETE request', function (done) {
       api.delete(path).reply(204);

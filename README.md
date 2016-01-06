@@ -231,6 +231,15 @@ Creates a new client.
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
 * `callback` - A function that is called with an error object and the response body as an object
 
+### `client.patch`
+
+#### Parameters
+
+* `url` - The URL to be requested
+* `body` - A JavaScript object to be used as the request body
+* `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
+* `callback` - A function that is called with an error object and the response body as an object
+
 ### `client.delete`
 
 #### Parameters
