@@ -422,6 +422,11 @@ describe('Caching', function () {
     client.post(url, {}, done);
   });
 
+  it('supports the PATCH method', function (done) {
+    api.patch('/', {}).reply(204);
+    client.patch(url, {}, done);
+  });
+
   it('supports the DELETE method', function (done) {
     api.delete('/').reply(204);
     client.delete(url, done);
