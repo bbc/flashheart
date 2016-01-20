@@ -433,7 +433,7 @@ describe('Rest Client', function () {
       client.get(url, done);
     });
 
-    it('should pass the response object through', function (done) {
+    it('passes the response object through', function (done) {
       var statusCode = 418;
       nock.cleanAll();
 
@@ -524,7 +524,7 @@ describe('Rest Client', function () {
       });
     });
 
-    it('should pass the response object through', function (done) {
+    it('passes the response object through', function (done) {
       var statusCode = 418;
       api.put(path, requestBody).reply(statusCode);
       client.put(url, requestBody, function (err, body, resp) {
@@ -587,7 +587,7 @@ describe('Rest Client', function () {
       });
     });
 
-    it('should pass the response object through', function (done) {
+    it('passes the response object through', function (done) {
       var statusCode = 418;
       api.post(path, requestBody).reply(statusCode);
       client.post(url, requestBody, function (err, body, resp) {
@@ -646,7 +646,7 @@ describe('Rest Client', function () {
       });
     });
 
-    it('should pass the response object through', function (done) {
+    it('passes the response object through', function (done) {
       var statusCode = 418;
       api.patch(path, requestBody).reply(statusCode);
       client.patch(url, requestBody, function (err, body, resp) {
@@ -708,7 +708,7 @@ describe('Rest Client', function () {
       });
     });
 
-    it('should pass the response object through', function (done) {
+    it('passes the response object through', function (done) {
       var statusCode = 418;
       api.delete(path).reply(statusCode);
       client.delete(url, function (err, body, resp) {
