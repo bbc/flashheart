@@ -12,6 +12,9 @@ var responseBody = {
   foo: 'bar'
 };
 
+// Just matching against any number as we cannot control
+// the elapsed time returned by request (i.e. it is the
+// actual elapsed time requesting against nock).
 var expectedCachedResponse = {
   statusCode: 200,
   headers: {
