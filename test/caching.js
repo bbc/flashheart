@@ -17,7 +17,8 @@ var expectedCachedResponse = {
   headers: {
     'cache-control': 'max-age=60',
     'content-type': 'application/json'
-  }
+  },
+  elapsedTime: sinon.match.number
 };
 
 describe('Caching', function () {
@@ -116,7 +117,8 @@ describe('Caching', function () {
         },
         response: {
           statusCode: errorResponseCode,
-          headers: cacheHeaders
+          headers: cacheHeaders,
+          elapsedTime: sinon.match.number
         }
       });
       done();
