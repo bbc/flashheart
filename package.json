@@ -35,7 +35,7 @@
     "istanbul": "^0.3.22",
     "jshint": "^2.8.0",
     "mocha": "^2.2.5",
-    "nock": "^2.6.0",
+    "nock": "^7.0.1",
     "sinon": "^1.15.3"
   },
   "jshintConfig": {
