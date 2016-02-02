@@ -12,16 +12,14 @@ var responseBody = {
   foo: 'bar'
 };
 
-// Just matching against any number as we cannot control
-// the elapsed time returned by request (i.e. it is the
-// actual elapsed time requesting against nock).
+var nockElapsedTime = sinon.match.number;
 var expectedCachedResponse = {
   statusCode: 200,
   headers: {
     'cache-control': 'max-age=60',
     'content-type': 'application/json'
   },
-  elapsedTime: sinon.match.number
+  elapsedTime: nockElapsedTime
 };
 
 describe('Caching', function () {
@@ -64,7 +62,7 @@ describe('Caching', function () {
     });
   });
 
-  it('caches the body and a sub-set of the response based on its max-age header', function (done) {
+  it('caches the body and the response based on its max-age header', function (done) {
     client.get(url, function (err) {
       assert.ifError(err);
       sinon.assert.calledWith(catbox.set, expectedKey, {
@@ -86,10 +84,10 @@ describe('Caching', function () {
         response: expectedCachedResponse
       }
     });
-    client.get(url, function (err, body, resp) {
+    client.get(url, function (err, body, res) {
       assert.ifError(err);
       assert.deepEqual(body, cachedResponseBody);
-      assert.deepEqual(resp, expectedCachedResponse);
+      assert.deepEqual(res, expectedCachedResponse);
       sinon.assert.called(catbox.set, expectedKey);
       done();
     });
