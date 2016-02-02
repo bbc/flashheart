@@ -238,7 +238,7 @@ Creates a new client.
 
 * `url` - The URL to be requested
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values))
+* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values)
 
 ### `client.put`
 
@@ -247,7 +247,7 @@ Creates a new client.
 * `url` - The URL to be requested
 * `body` - A JavaScript object to be used as the request body
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values))
+* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values)
 
 ### `client.post`
 
@@ -256,7 +256,7 @@ Creates a new client.
 * `url` - The URL to be requested
 * `body` - A JavaScript object to be used as the request body
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values))
+* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values)
 
 ### `client.patch`
 
@@ -265,7 +265,7 @@ Creates a new client.
 * `url` - The URL to be requested
 * `body` - A JavaScript object to be used as the request body
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values))
+* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values)
 
 ### `client.delete`
 
@@ -273,7 +273,7 @@ Creates a new client.
 
 * `url` - The URL to be requested
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values))
+* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values)
 
 ## Contributing
 
