@@ -32,6 +32,7 @@
   "devDependencies": {
     "async": "^1.4.2",
     "chai": "^3.2.0",
+    "codeclimate-test-reporter": "^0.3.0",
     "istanbul": "^0.4.2",
     "jshint": "^2.8.0",
     "mocha": "^2.2.5",
