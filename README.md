@@ -28,13 +28,13 @@ npm install --save flashheart
 ## Usage
 
 ```js
-var client = require('flashheart').createClient({
+const client = require('flashheart').createClient({
   name: 'my_service',
   logger: console
 });
 
-client.get('http://echo.jsontest.com/key/value/', function (err, body) {
-  if (err) throw err;
+client.get('http://echo.jsontest.com/key/value/', (err, body) => {
+  if (err) return console.error(err.message);
 
   console.log(body);
   // {key: "value"}
@@ -54,7 +54,7 @@ Unlike `request`, any response with a status code greater than or equal to `400`
 The client has a default timeout of _2 seconds_. You can override this when creating a client by setting the `timeout` property.
 
 ```js
-var client = require('flashheart').createClient({
+const client = require('flashheart').createClient({
   timeout: 50
 });
 ```
@@ -64,10 +64,10 @@ var client = require('flashheart').createClient({
 The client will optionally cache any publicly cacheable response with a `max-age` directive. You can specify the caching storage with an instance of [Catbox](https://github.com/hapijs/catbox) using the `cache` parameter.
 
 ```js
-var Catbox = require('catbox').Client;
-var Memory = require('catbox-memory');
-var storage = new Catbox(new Memory());
-var client = require('flashheart').createClient({
+const Catbox = require('catbox').Client;
+const Memory = require('catbox-memory');
+const storage = new Catbox(new Memory());
+const client = require('flashheart').createClient({
   cache: storage
 });
 ```
@@ -75,7 +75,7 @@ var client = require('flashheart').createClient({
 The cache varies on _all_ request options (and therefore, headers) by default. If you don't want to vary on a particular header, use the `doNotVary` option:
 
 ```js
-var client = require('flashheart').createClient({
+const client = require('flashheart').createClient({
   cache: storage,
   doNotVary: ['Request-Id']
 });
@@ -86,7 +86,7 @@ var client = require('flashheart').createClient({
 All requests can be logged at `info` level if you provide a logger that supports the standard logging API (like `console` or [Winston](https://github.com/flatiron/winston))
 
 ```js
-var client = require('flashheart').createClient({
+const client = require('flashheart').createClient({
   logger: console
 });
 ```
@@ -96,10 +96,10 @@ var client = require('flashheart').createClient({
 Metrics can be sent to [StatsD](https://github.com/etsy/statsd/) by providing an instance of the [node-statsd](https://github.com/sivy/node-statsd) client:
 
 ```js
-var StatsD = require('node-statsd');
-var stats = new StatsD();
+const StatsD = require('node-statsd');
+const stats = new StatsD();
 
-var client = require('flashheart').createClient({
+const client = require('flashheart').createClient({
   stats: stats
 });
 ```
@@ -127,7 +127,7 @@ By default the client retries failed requests once, with a delay of 100 millisec
 For example, to retry 10 times, with a delay of 500ms:
 
 ```js
-var client = require('flashheart').createClient({
+const client = require('flashheart').createClient({
   retries: 10,
   retryTimeout: 500
 });
@@ -142,7 +142,7 @@ By default the client implements a circuit breaker using the [Levee](https://git
 For example to trip after 200 failures and try to reset after 30 seconds:
 
 ```js
-var client = require('flashheart').createClient({
+const client = require('flashheart').createClient({
   circuitBreakerMaxFailures: 200,
   circuitBreakerResetTimeout: 30000
 });
@@ -153,14 +153,14 @@ var client = require('flashheart').createClient({
 The client uses [request](https://github.com/request/request) to make HTTP requests. You can override the default request instance using the `request` parameter:
 
 ```js
-var request = require('request').defaults({
+const request = require('request').defaults({
   json: false,
   headers: {
     'X-Api-Key': 'foo'
   }
 });
 
-var client = require('flashheart').createClient({
+const client = require('flashheart').createClient({
   request: request
 });
 ```
@@ -170,14 +170,14 @@ var client = require('flashheart').createClient({
 The `request` option can also be used to pass a pre-configured request client for HTTPS client certificate authentication:
 
 ```js
-var fs = require('fs');
-var request = require('request').defaults({
+const fs = require('fs');
+const request = require('request').defaults({
   pfx: fs.readFileSync('/path/to/my/cert.p12'),
   passphrase: 'password',
   strictSSL: false
 });
 
-var client = require('flashheart').createClient({
+const client = require('flashheart').createClient({
   request: request
 });
 ```
@@ -189,7 +189,7 @@ var client = require('flashheart').createClient({
 All of the client methods (`.get`, `.put` etc.) return three arguments to their callbacks; `err`, `body` and `res`:
 
 ```js
-client.get(url, function (err, body, res) {
+client.get(url, (err, body, res) => {
   // `err` is an optional error
   // `body` is the parsed JSON response body
   // `res` is an object containing information about the response
