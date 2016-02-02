@@ -81,18 +81,6 @@ var client = require('flashheart').createClient({
 });
 ```
 
-Note the HTTP response returned from cache is a cut-down version of the response that `request` supplies, currently it looks like the following:
-
-```js
-{
-  statusCode: 200,
-  headers: {
-    'content-type': 'application-json'
-  },
-  elapsedTime: // If time => true passed into request options
-}
-```
-
 ### Logging
 
 All requests can be logged at `info` level if you provide a logger that supports the standard logging API (like `console` or [Winston](https://github.com/flatiron/winston))
