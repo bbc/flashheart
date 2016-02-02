@@ -205,7 +205,7 @@ describe('Rest Client', function () {
         qs: {
           foo: 'bar'
         }
-      }, function (err, body) {
+      }, function (err, body    ) {
         assert.ifError(err);
         assert.equal(body.foo, 'bar');
         done();
@@ -432,6 +432,17 @@ describe('Rest Client', function () {
 
       client.get(url, done);
     });
+
+    it('passes the response object through', function (done) {
+      var statusCode = 418;
+      nock.cleanAll();
+
+      api.get(path).reply(statusCode);
+      client.get(url, function (err, body, resp) {
+        assert.equal(resp.statusCode, statusCode);
+        done();
+      });
+    });
   });
 
   describe('.put', function () {
@@ -512,6 +523,15 @@ describe('Rest Client', function () {
         });
       });
     });
+
+    it('passes the response object through', function (done) {
+      var statusCode = 418;
+      api.put(path, requestBody).reply(statusCode);
+      client.put(url, requestBody, function (err, body, resp) {
+        assert.equal(resp.statusCode, statusCode);
+        done();
+      });
+    });
   });
 
   describe('.post', function () {
@@ -566,6 +586,15 @@ describe('Rest Client', function () {
         });
       });
     });
+
+    it('passes the response object through', function (done) {
+      var statusCode = 418;
+      api.post(path, requestBody).reply(statusCode);
+      client.post(url, requestBody, function (err, body, resp) {
+          assert.equal(resp.statusCode, statusCode);
+          done();
+      });
+    });
   });
 
   describe('.patch', function () {
@@ -614,6 +643,15 @@ describe('Rest Client', function () {
           assert.include(err.message, 'Circuit breaker is open');
           done();
         });
+      });
+    });
+
+    it('passes the response object through', function (done) {
+      var statusCode = 418;
+      api.patch(path, requestBody).reply(statusCode);
+      client.patch(url, requestBody, function (err, body, resp) {
+        assert.equal(resp.statusCode, statusCode);
+        done();
       });
     });
   });
@@ -667,6 +705,15 @@ describe('Rest Client', function () {
           assert.include(err.message, 'Circuit breaker is open');
           done();
         });
+      });
+    });
+
+    it('passes the response object through', function (done) {
+      var statusCode = 418;
+      api.delete(path).reply(statusCode);
+      client.delete(url, function (err, body, resp) {
+        assert.equal(resp.statusCode, statusCode);
+        done();
       });
     });
   });

@@ -12,6 +12,18 @@ var responseBody = {
   foo: 'bar'
 };
 
+// Just matching against any number as we cannot control
+// the elapsed time returned by request (i.e. it is the
+// actual elapsed time requesting against nock).
+var expectedCachedResponse = {
+  statusCode: 200,
+  headers: {
+    'cache-control': 'max-age=60',
+    'content-type': 'application/json'
+  },
+  elapsedTime: sinon.match.number
+};
+
 describe('Caching', function () {
   var stats;
   var logger;
@@ -52,11 +64,12 @@ describe('Caching', function () {
     });
   });
 
-  it('caches the response based on its max-age header', function (done) {
+  it('caches the body and a sub-set of the response based on its max-age header', function (done) {
     client.get(url, function (err) {
       assert.ifError(err);
       sinon.assert.calledWith(catbox.set, expectedKey, {
-        body: responseBody
+        body: responseBody,
+        response: expectedCachedResponse
       }, 60000);
       done();
     });
@@ -69,18 +82,21 @@ describe('Caching', function () {
 
     catbox.get.withArgs(expectedKey).yields(null, {
       item: {
-        body: cachedResponseBody
+        body: cachedResponseBody,
+        response: expectedCachedResponse
       }
     });
-    client.get(url, function (err, body) {
+    client.get(url, function (err, body, resp) {
       assert.ifError(err);
       assert.deepEqual(body, cachedResponseBody);
-      sinon.assert.notCalled(catbox.set, expectedKey);
+      assert.deepEqual(resp, expectedCachedResponse);
+      sinon.assert.called(catbox.set, expectedKey);
       done();
     });
   });
 
   it('caches HTTP error responses', function (done) {
+    var errorResponseCode = 503;
     var errorResponseBody = {
       error: 'An error'
     };
@@ -88,16 +104,24 @@ describe('Caching', function () {
       'cache-control': 'max-age=5'
     };
 
+    var cacheHeaders = errorHeaders;
+    cacheHeaders['content-type'] = 'application/json';
+
     nock.cleanAll();
-    api.get('/').reply(503, errorResponseBody, errorHeaders);
+    api.get('/').reply(errorResponseCode, errorResponseBody, errorHeaders);
     client.get(url, function (err) {
       assert.ok(err);
-      assert.equal(err.statusCode, 503);
+      assert.equal(err.statusCode, errorResponseCode);
       sinon.assert.calledWith(catbox.set, expectedKey, {
         error: {
           message: 'Received HTTP code 503 for GET http://www.example.com/',
-          statusCode: 503,
+          statusCode: errorResponseCode,
           body: errorResponseBody
+        },
+        response: {
+          statusCode: errorResponseCode,
+          headers: cacheHeaders,
+          elapsedTime: sinon.match.number
         }
       });
       done();
@@ -144,7 +168,8 @@ describe('Caching', function () {
     client.get(url, function (err, body) {
       assert.ifError(err);
       sinon.assert.calledWith(catbox.set, expectedKey, {
-        body: responseBody
+        body: responseBody,
+        response: expectedCachedResponse
       }, 60000);
       assert.deepEqual(responseBody, body);
       done();
@@ -174,7 +199,8 @@ describe('Caching', function () {
     client.get(url, function (err, body) {
       assert.ifError(err);
       sinon.assert.calledWith(catbox.set, expectedKey, {
-        body: responseBody
+        body: responseBody,
+        response: expectedCachedResponse
       }, 60000);
       assert.deepEqual(responseBody, body);
       done();
@@ -203,7 +229,8 @@ describe('Caching', function () {
     client.get(url, opts, function (err, body) {
       assert.ifError(err);
       sinon.assert.calledWith(catbox.set, keyWithOpts, {
-        body: responseBody
+        body: responseBody,
+        response: expectedCachedResponse
       }, 60000);
       assert.deepEqual(responseBody, body);
       done();

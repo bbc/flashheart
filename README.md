@@ -81,6 +81,18 @@ var client = require('flashheart').createClient({
 });
 ```
 
+Note the HTTP response returned from cache is a cut-down version of the response that `request` supplies, currently it looks like the following:
+
+```js
+{
+  statusCode: 200,
+  headers: {
+    'content-type': 'application-json'
+  },
+  elapsedTime: // If time => true passed into request options
+}
+```
+
 ### Logging
 
 All requests can be logged at `info` level if you provide a logger that supports the standard logging API (like `console` or [Winston](https://github.com/flatiron/winston))
@@ -211,7 +223,12 @@ Creates a new client.
 
 * `url` - The URL to be requested
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function that is called with an error object and the response body as an object
+* `callback` - A function that is called with an error object, the body of the response, and a 'cacheable' sub-set of HTTP response (status code, headers, elapsed time).
+
+```
+client.get('https://www.example.com', {}, function (err, body, resp) {
+});
+```
 
 ### `client.put`
 
@@ -220,7 +237,12 @@ Creates a new client.
 * `url` - The URL to be requested
 * `body` - A JavaScript object to be used as the request body
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function that is called with an error object and the response body as an object
+* `callback` - A function that is called with an error object, the body of the response, and a 'cacheable' sub-set of HTTP response (status code, headers, elapsed time).
+
+```
+client.put('https://www.example.com', { foo: 'bar' }, {}, function (err, body, resp) {
+});
+```
 
 ### `client.post`
 
@@ -229,7 +251,12 @@ Creates a new client.
 * `url` - The URL to be requested
 * `body` - A JavaScript object to be used as the request body
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function that is called with an error object and the response body as an object
+* `callback` - A function that is called with an error object, the body of the response, and a 'cacheable' sub-set of HTTP response (status code, headers, elapsed time).
+
+```
+client.post('https://www.example.com', { foo: 'bar' }, {}, function (err, body, resp) {
+});
+```
 
 ### `client.patch`
 
@@ -238,7 +265,12 @@ Creates a new client.
 * `url` - The URL to be requested
 * `body` - A JavaScript object to be used as the request body
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function that is called with an error object and the response body as an object
+* `callback` - A function that is called with an error object, the body of the response, and a 'cacheable' sub-set of HTTP response (status code, headers, elapsed time).
+
+```
+client.patch('https://www.example.com', { foo: 'bar' }, {}, function (err, body, resp) {
+});
+```
 
 ### `client.delete`
 
@@ -246,7 +278,22 @@ Creates a new client.
 
 * `url` - The URL to be requested
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function that is called with an error object and the response body as an object
+* `callback` - A function that is called with an error object, the body of the response, and a 'cacheable' sub-set of HTTP response (status code, headers, elapsed time).
+
+```
+client.delete('https://www.example.com', {}, function (err, body, resp) {
+});
+```
+
+### The response object
+
+A sub-set of the overall response object from `request` is returned in the callback, for example:
+
+```
+resp = { statusCode: 200, headers: { 'Accept': 'application/json' }, elapsedTime: 153 }
+```
+
+If caching is enabled, this sub-set is cached alongside the main response body.
 
 ## Contributing
 
