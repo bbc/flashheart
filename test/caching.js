@@ -126,7 +126,7 @@ describe('Caching', function () {
     });
   });
 
-  it('makes a request when the value stored in the cache doesn\'t contain the response body', function () {
+  it('makes a request when the value stored in the cache doesn\'t contain the response body', function (done) {
     catbox.get.withArgs(expectedKey).yields(null, {
       item: {
         not: 'the json you were looking for'
