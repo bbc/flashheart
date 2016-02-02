@@ -196,6 +196,21 @@ var client = require('flashheart').createClient({
 
 ## API
 
+#### Callback return values
+
+All of the client methods (`.get`, `.put` etc.) return three arguments to their callbacks; `err`, `body` and `res`:
+
+```js
+client.get(url, function (err, body, res) {
+  // `err` is an optional error
+  // `body` is the parsed JSON response body
+  // `res` is an object containing information about the response
+  //   `res.headers` is an object containing the response headers
+  //   `res.statusCode` is the status code
+  //   `res.elapsedTime` is the response time in milliseconds
+});
+```
+
 ### `.createClient`
 
 Creates a new client.
@@ -223,12 +238,7 @@ Creates a new client.
 
 * `url` - The URL to be requested
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function that is called with an error object, the body of the response, and a 'cacheable' sub-set of HTTP response (status code, headers, elapsed time).
-
-```
-client.get('https://www.example.com', {}, function (err, body, resp) {
-});
-```
+* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values))
 
 ### `client.put`
 
@@ -237,12 +247,7 @@ client.get('https://www.example.com', {}, function (err, body, resp) {
 * `url` - The URL to be requested
 * `body` - A JavaScript object to be used as the request body
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function that is called with an error object, the body of the response, and a 'cacheable' sub-set of HTTP response (status code, headers, elapsed time).
-
-```
-client.put('https://www.example.com', { foo: 'bar' }, {}, function (err, body, resp) {
-});
-```
+* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values))
 
 ### `client.post`
 
@@ -251,12 +256,7 @@ client.put('https://www.example.com', { foo: 'bar' }, {}, function (err, body, r
 * `url` - The URL to be requested
 * `body` - A JavaScript object to be used as the request body
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function that is called with an error object, the body of the response, and a 'cacheable' sub-set of HTTP response (status code, headers, elapsed time).
-
-```
-client.post('https://www.example.com', { foo: 'bar' }, {}, function (err, body, resp) {
-});
-```
+* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values))
 
 ### `client.patch`
 
@@ -265,12 +265,7 @@ client.post('https://www.example.com', { foo: 'bar' }, {}, function (err, body, 
 * `url` - The URL to be requested
 * `body` - A JavaScript object to be used as the request body
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function that is called with an error object, the body of the response, and a 'cacheable' sub-set of HTTP response (status code, headers, elapsed time).
-
-```
-client.patch('https://www.example.com', { foo: 'bar' }, {}, function (err, body, resp) {
-});
-```
+* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values))
 
 ### `client.delete`
 
@@ -278,22 +273,7 @@ client.patch('https://www.example.com', { foo: 'bar' }, {}, function (err, body,
 
 * `url` - The URL to be requested
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
-* `callback` - A function that is called with an error object, the body of the response, and a 'cacheable' sub-set of HTTP response (status code, headers, elapsed time).
-
-```
-client.delete('https://www.example.com', {}, function (err, body, resp) {
-});
-```
-
-### The response object
-
-A sub-set of the overall response object from `request` is returned in the callback, for example:
-
-```
-resp = { statusCode: 200, headers: { 'Accept': 'application/json' }, elapsedTime: 153 }
-```
-
-If caching is enabled, this sub-set is cached alongside the main response body.
+* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values))
 
 ## Contributing
 
