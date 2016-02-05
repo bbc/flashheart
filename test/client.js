@@ -1,3 +1,4 @@
+var _ = require('lodash');
 var nock = require('nock');
 var assert = require('chai').assert;
 var async = require('async');
@@ -19,10 +20,13 @@ var requestBody = {
 };
 var responseBody = requestBody;
 
-function nockRetries(retry) {
+function nockRetries(retry, opts) {
+  const httpMethod = _.get(opts, 'httpMethod') || 'get';
+  const successCode = _.get(opts, 'successCode') || 200;
+
   nock.cleanAll();
-  api.get(path).times(retry).reply(500);
-  api.get(path).reply(200);
+  api[httpMethod](path).times(retry).reply(500);
+  api[httpMethod](path).reply(successCode);
 }
 
 describe('Rest Client', function () {
@@ -205,7 +209,7 @@ describe('Rest Client', function () {
         qs: {
           foo: 'bar'
         }
-      }, function (err, body    ) {
+      }, function (err, body) {
         assert.ifError(err);
         assert.equal(body.foo, 'bar');
         done();
@@ -245,6 +249,15 @@ describe('Rest Client', function () {
       });
       nockRetries(1);
       client.get(url, done);
+    });
+
+    it('overrides retries using method options', function (done) {
+      client = Client.createClient();
+      nockRetries(2);
+
+      client.get(url, {
+        retries: 2
+      }, done);
     });
 
     it('does not retry 4XX errors', function (done) {
@@ -483,10 +496,23 @@ describe('Rest Client', function () {
         retries: 2,
         retryTimeout: 0
       });
-      api.put(path, requestBody).reply(500, responseBody);
-      api.put(path, requestBody).reply(500, responseBody);
-      api.put(path, requestBody).reply(201, responseBody);
+      nockRetries(2, {
+        httpMethod: 'put'
+      });
+
       client.put(url, requestBody, done);
+    });
+
+    it('overrides retries using method options', function (done) {
+      client = Client.createClient();
+      nockRetries(2, {
+        httpMethod: 'put',
+        successCode: 201
+      });
+
+      client.put(url, requestBody, {
+        retries: 2
+      }, done);
     });
 
     it('supports optional request options', function (done) {
@@ -557,10 +583,24 @@ describe('Rest Client', function () {
         retries: 2,
         retryTimeout: 0
       });
-      api.post(path, requestBody).reply(500, responseBody);
-      api.post(path, requestBody).reply(500, responseBody);
-      api.post(path, requestBody).reply(201, responseBody);
+      nockRetries(2, {
+        httpMethod: 'post',
+        successCode: 201
+      });
+
       client.post(url, requestBody, done);
+    });
+
+    it('overrides retries using method options', function (done) {
+      client = Client.createClient();
+      nockRetries(2, {
+        httpMethod: 'post',
+        successCode: 201
+      });
+
+      client.post(url, requestBody, {
+        retries: 2
+      }, done);
     });
 
     it('trips the circuit breaker when multiple requests fail', function (done) {
@@ -590,9 +630,11 @@ describe('Rest Client', function () {
     it('passes the response object through', function (done) {
       var statusCode = 418;
       api.post(path, requestBody).reply(statusCode);
+
       client.post(url, requestBody, function (err, body, resp) {
-          assert.equal(resp.statusCode, statusCode);
-          done();
+        assert(err);
+        assert.equal(resp.statusCode, statusCode);
+        done();
       });
     });
   });
@@ -605,6 +647,7 @@ describe('Rest Client', function () {
 
     it('returns an error when the API returns a 5XX status code', function (done) {
       api.patch(path, requestBody).reply(500);
+
       client.patch(url, requestBody, function (err) {
         assert.ok(err);
         done();
@@ -616,10 +659,24 @@ describe('Rest Client', function () {
         retries: 2,
         retryTimeout: 0
       });
-      api.patch(path, requestBody).reply(500, responseBody);
-      api.patch(path, requestBody).reply(500, responseBody);
-      api.patch(path, requestBody).reply(204);
+      nockRetries(2, {
+        httpMethod: 'patch',
+        successCode: 204
+      });
+
       client.patch(url, requestBody, done);
+    });
+
+    it('overrides retries using method options', function (done) {
+      client = Client.createClient();
+      nockRetries(2, {
+        httpMethod: 'patch',
+        successCode: 201
+      });
+
+      client.patch(url, requestBody, {
+        retries: 2
+      }, done);
     });
 
     it('trips the circuit breaker when multiple requests fail', function (done) {
@@ -649,7 +706,9 @@ describe('Rest Client', function () {
     it('passes the response object through', function (done) {
       var statusCode = 418;
       api.patch(path, requestBody).reply(statusCode);
+
       client.patch(url, requestBody, function (err, body, resp) {
+        assert(err);
         assert.equal(resp.statusCode, statusCode);
         done();
       });
@@ -667,10 +726,24 @@ describe('Rest Client', function () {
         retries: 2,
         retryTimeout: 0
       });
-      api.delete(path).reply(500, responseBody);
-      api.delete(path).reply(500, responseBody);
-      api.delete(path).reply(204, responseBody);
+      nockRetries(2, {
+        httpMethod: 'delete',
+        successCode: 204
+      });
+
       client.delete(url, done);
+    });
+
+    it('overrides retries using method options', function (done) {
+      client = Client.createClient();
+      nockRetries(2, {
+        httpMethod: 'delete',
+        successCode: 204
+      });
+
+      client.delete(url, {
+        retries: 2
+      }, done);
     });
 
     it('supports optional request options', function (done) {
@@ -711,7 +784,9 @@ describe('Rest Client', function () {
     it('passes the response object through', function (done) {
       var statusCode = 418;
       api.delete(path).reply(statusCode);
+
       client.delete(url, function (err, body, resp) {
+        assert(err);
         assert.equal(resp.statusCode, statusCode);
         done();
       });

@@ -133,6 +133,14 @@ const client = require('flashheart').createClient({
 });
 ```
 
+Default retries can be overridden using method options:
+```js
+client.get(url, {
+  retries: 5,
+  retryTimeout: 250
+}, done);
+```
+
 Only request errors or server errors result in a retry; `4XX` errors are _not_ retried.
 
 ### Circuit breaker
