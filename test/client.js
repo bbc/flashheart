@@ -500,7 +500,6 @@ describe('Rest Client', function () {
         httpMethod: 'put'
       });
 
-      api.put(path, requestBody).reply(201, responseBody);
       client.put(url, requestBody, done);
     });
 
@@ -631,7 +630,9 @@ describe('Rest Client', function () {
     it('passes the response object through', function (done) {
       var statusCode = 418;
       api.post(path, requestBody).reply(statusCode);
+
       client.post(url, requestBody, function (err, body, resp) {
+        assert(err);
         assert.equal(resp.statusCode, statusCode);
         done();
       });
@@ -646,6 +647,7 @@ describe('Rest Client', function () {
 
     it('returns an error when the API returns a 5XX status code', function (done) {
       api.patch(path, requestBody).reply(500);
+
       client.patch(url, requestBody, function (err) {
         assert.ok(err);
         done();
@@ -704,7 +706,9 @@ describe('Rest Client', function () {
     it('passes the response object through', function (done) {
       var statusCode = 418;
       api.patch(path, requestBody).reply(statusCode);
+
       client.patch(url, requestBody, function (err, body, resp) {
+        assert(err);
         assert.equal(resp.statusCode, statusCode);
         done();
       });
@@ -780,7 +784,9 @@ describe('Rest Client', function () {
     it('passes the response object through', function (done) {
       var statusCode = 418;
       api.delete(path).reply(statusCode);
+
       client.delete(url, function (err, body, resp) {
+        assert(err);
         assert.equal(resp.statusCode, statusCode);
         done();
       });
