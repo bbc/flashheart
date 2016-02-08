@@ -88,7 +88,7 @@ describe('Caching', function () {
       assert.ifError(err);
       assert.deepEqual(body, cachedResponseBody);
       assert.deepEqual(res, expectedCachedResponse);
-      sinon.assert.called(catbox.set, expectedKey);
+      sinon.assert.notCalled(catbox.set);
       done();
     });
   });

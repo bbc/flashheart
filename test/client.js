@@ -252,7 +252,9 @@ describe('Rest Client', function () {
     });
 
     it('overrides retries using method options', function (done) {
-      client = Client.createClient();
+      client = Client.createClient({
+        retryTimeout: 1
+      });
       nockRetries(2);
 
       client.get(url, {
@@ -504,7 +506,9 @@ describe('Rest Client', function () {
     });
 
     it('overrides retries using method options', function (done) {
-      client = Client.createClient();
+      client = Client.createClient({
+        retryTimeout: 1
+      });
       nockRetries(2, {
         httpMethod: 'put',
         successCode: 201
@@ -592,7 +596,9 @@ describe('Rest Client', function () {
     });
 
     it('overrides retries using method options', function (done) {
-      client = Client.createClient();
+      client = Client.createClient({
+        retryTimeout: 1
+      });
       nockRetries(2, {
         httpMethod: 'post',
         successCode: 201
@@ -668,7 +674,9 @@ describe('Rest Client', function () {
     });
 
     it('overrides retries using method options', function (done) {
-      client = Client.createClient();
+      client = Client.createClient({
+        retryTimeout: 1
+      });
       nockRetries(2, {
         httpMethod: 'patch',
         successCode: 201
@@ -735,7 +743,9 @@ describe('Rest Client', function () {
     });
 
     it('overrides retries using method options', function (done) {
-      client = Client.createClient();
+      client = Client.createClient({
+        retryTimeout: 1
+      });
       nockRetries(2, {
         httpMethod: 'delete',
         successCode: 204
