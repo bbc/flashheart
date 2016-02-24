@@ -173,6 +173,19 @@ const client = require('flashheart').createClient({
 });
 ```
 
+Alternatively, you can override or append to the default `request` options.
+
+```js
+const client = require('flashheart').createClient({
+  defaults: {
+    json: false,
+    headers: {
+      'X-Api-Key': 'foo'
+    }
+  }
+});
+```
+
 #### Usage with client certificates
 
 The `request` option can also be used to pass a pre-configured request client for HTTPS client certificate authentication:
@@ -226,6 +239,7 @@ Creates a new client.
 * `circuitBreakerResetTimeout` - _optional_ - Time in milliseconds to wait before the circuit breaker resets after opening (_default 10000_)
 * `userAgent` - _optional_ - A custom user agent for the client (_default flashheart/VERSION_)
 * `doNotVary` - _optional_ - An array of headers to ignore when creating cache keys (_default_ `[]`)
+* `defaults` - _optional_ - A [`request`](https://github.com/request/request) options object to append or override existing default options
 * `request` - _optional_ - A pre-configured instance of [`request`](https://github.com/request/request)
 
 ### `client.get`

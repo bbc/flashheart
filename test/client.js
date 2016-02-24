@@ -58,6 +58,34 @@ describe('Rest Client', function () {
     assert.ok(client);
   });
 
+  it('can append default options to the existing request client', function (done) {
+    var client = Client.createClient({
+      defaults: {
+        baseUrl: host
+      }
+    });
+
+    client.get(path, function (err) {
+      assert.ifError(err);
+      assert.strictEqual(nock.isDone(), true);
+      done();
+    });
+  });
+
+  it('can override default options on the existing request client', function (done) {
+    var client = Client.createClient({
+      defaults: {
+        time: false
+      }
+    });
+
+    client.get(url, function (err, body, res) {
+      assert.ifError(err);
+      assert.strictEqual(res.elapsedTime, undefined);
+      done();
+    });
+  });
+
   describe('.get', function () {
     it('returns body of a JSON response', function (done) {
       client.get(url, function (err, body) {
