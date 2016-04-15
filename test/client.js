@@ -146,7 +146,9 @@ describe('Rest Client', function () {
 
       client.get(url, function (err) {
         assert.ifError(err);
-        sinon.assert.calledWith(logger.info, 'GET', url, 200);
+        sinon.assert.called(logger.info);
+        var message = logger.info.getCall(0).args[0];
+        assert.match(message, /GET http:\/\/www.example.com\/ 200 \d+ ms/);
         done();
       });
     });
