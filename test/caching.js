@@ -73,6 +73,30 @@ describe('Caching', function () {
     });
   });
 
+
+  it('protects downstream services from the thundering herd problem by collapsing multiple concurrent requests for the same resource onto a single downstream request', function (done) {
+      var callCount = 0;
+      var inflightRequests = 3;
+      var countdownLatch = inflightRequests;
+      nock.cleanAll();
+      api.get('/').reply(function(uri, body, cb) {
+          callCount = callCount + 1;
+          setTimeout(function() {
+              cb(null, [200, responseBody, headers]);
+          }, 0);
+      });
+      var countDown = function () {
+          countdownLatch = countdownLatch - 1;
+          if (countdownLatch === 0){
+              assert.equal(callCount, 1);
+              done();
+          }
+      };
+      for (var i = 0; i < inflightRequests; i++){
+          client.get(url, countDown);
+      }
+  });
+
   it('returns the response from the cache if it exists', function (done) {
     var cachedResponseBody = {
       foo: 'baz'
@@ -422,10 +446,10 @@ describe('Caching', function () {
     });
 
     nock.cleanAll();
-    api.get('/').times(6).reply(500);
+    api.get(/\/\d?/).times(3).reply(500);
 
-    async.times(5, function (i, cb) {
-      client.get(url, function () {
+    async.times(3, function (i, cb) {
+      client.get(url + i, function () {
         cb();
       });
     }, function () {
