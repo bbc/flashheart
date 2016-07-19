@@ -24,6 +24,7 @@ npm install --save flashheart
 * [StatsD integration](#stats)
 * [Retries](#retries)
 * [Circuit breaker](#circuit-breaker)
+* [Shared Execution](#shared-execution)
 
 ## Usage
 
@@ -153,6 +154,17 @@ For example to trip after 200 failures and try to reset after 30 seconds:
 const client = require('flashheart').createClient({
   circuitBreakerMaxFailures: 200,
   circuitBreakerResetTimeout: 30000
+});
+```
+### Shared Execution
+
+The client can be configured to share execution of get requests, protecting downstream services from the thundering herd. It can be enabled/disabled by providing a boolean value the `sharedExecution` property. By default this is disabled.
+
+For example to enable shared execution:
+
+```js
+const client = require('flashheart').createClient({
+    sharedExecution: true
 });
 ```
 
