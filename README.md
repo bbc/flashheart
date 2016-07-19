@@ -158,7 +158,7 @@ const client = require('flashheart').createClient({
 ```
 ### Shared Execution
 
-The client can be configured to share execution of get requests, protecting downstream services from the thundering herd. It can be enabled/disabled by providing a boolean value the `sharedExecution` property. By default this is disabled.
+The client can be configured to share execution of HTTP GET requests, protecting downstream services from the thundering herd. It can be enabled/disabled by providing a boolean value for the `sharedExecution` property. By default this is disabled.
 
 For example to enable shared execution:
 
