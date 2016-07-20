@@ -82,6 +82,14 @@ const client = require('flashheart').createClient({
 });
 ```
 
+The cache behaviour can be enabled to act on stale-while-revalidate headers. When enabled this causes the cache to serve stale but refresh the cache entry in the background. It is enabled with the `swr` option:
+```js
+const client = require('flashheart').createClient({
+  cache: storage,
+  swr: true
+});
+```
+
 ### Logging
 
 All requests can be logged at `info` level if you provide a logger that supports the standard logging API (like `console` or [Winston](https://github.com/flatiron/winston))
