@@ -73,60 +73,6 @@ describe('Caching', function () {
     });
   });
 
-
-  it('protects downstream services from the thundering herd problem by sharing execution of multiple concurrent requests for the same resource if enabled', function (done) {
-      var callCount = 0;
-      var inflightRequests = 3;
-      var countdownLatch = inflightRequests;
-      nock.cleanAll();
-      api.get('/').reply(function(uri, body, cb) {
-          callCount = callCount + 1;
-          setTimeout(function() {
-              cb(null, [200, responseBody, headers]);
-          }, 0);
-      });
-      var countDown = function () {
-          countdownLatch = countdownLatch - 1;
-          if (countdownLatch === 0){
-              assert.equal(callCount, 1);
-              done();
-          }
-      };
-      client = Client.createClient({
-          cache: catbox,
-          stats: stats,
-          logger: logger,
-          retries: 0,
-          sharedExecution : true
-      });
-      for (var i = 0; i < inflightRequests; i++){
-          client.get(url, countDown);
-      }
-  });
-
-  it('performs multiple concurrent requests to the same resource if shared execution is not enabled', function (done) {
-      var callCount = 0;
-      var inflightRequests = 3;
-      var countdownLatch = inflightRequests;
-      nock.cleanAll();
-      api.get('/').reply(function(uri, body, cb) {
-          callCount = callCount + 1;
-          setTimeout(function() {
-              cb(null, [200, responseBody, headers]);
-          }, 0);
-      });
-      var countDown = function () {
-          countdownLatch = countdownLatch - 1;
-          if (countdownLatch === 0){
-              assert.equal(callCount, 3);
-              done();
-          }
-      };
-      for (var i = 0; i < inflightRequests; i++){
-          client.get(url, countDown);
-      }
-  });
-
   it('returns the response from the cache if it exists', function (done) {
     var cachedResponseBody = {
       foo: 'baz'
