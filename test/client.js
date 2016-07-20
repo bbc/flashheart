@@ -489,7 +489,7 @@ describe('Rest Client', function () {
       });
     });
 
-    it('protects downstream services from the thundering herd problem by sharing execution of multiple concurrent requests for the same resource if enabled', function (done) {
+    it('shares execution of multiple concurrent requests for the same resource if enabled', function (done) {
         var callCount = 0;
         var inflightRequests = 3;
         var countdownLatch = inflightRequests;
