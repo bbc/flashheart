@@ -489,7 +489,7 @@ describe('Rest Client', function () {
       });
     });
 
-    it('shares execution of multiple concurrent requests for the same resource if enabled', function (done) {
+    var sharedExecutionTest = function(client, expectedCallCount, done){
         var callCount = 0;
         var inflightRequests = 3;
         var countdownLatch = inflightRequests;
@@ -503,44 +503,43 @@ describe('Rest Client', function () {
         var countDown = function () {
             countdownLatch = countdownLatch - 1;
             if (countdownLatch === 0){
-                assert.equal(callCount, 1);
+                assert.equal(callCount, expectedCallCount);
                 done();
             }
         };
-        client = Client.createClient({
+        for (var i = 0; i < inflightRequests; i++){
+            client.get(url, countDown);
+        }
+    };
+
+    it('shares execution of multiple concurrent requests for the same resource if enabled', function (done) {
+        var client = Client.createClient({
             logger: logger,
             retries: 0,
             sharedExecution : true
         });
-        for (var i = 0; i < inflightRequests; i++){
-            client.get(url, countDown);
-        }
+        sharedExecutionTest(client, 1, done);
+
     });
       
     it('performs multiple concurrent requests to the same resource if shared execution is not enabled', function (done) {
-        var callCount = 0;
-        var inflightRequests = 3;
-        var countdownLatch = inflightRequests;
-        nock.cleanAll();
-        api.get('/').reply(function(uri, body, cb) {
-            callCount = callCount + 1;
-            setTimeout(function() {
-                cb(null, [200, responseBody]);
-            }, 0);
+        var client = Client.createClient({
+            logger: logger,
+            retries: 0,
+            sharedExecution : false
         });
-        var countDown = function () {
-            countdownLatch = countdownLatch - 1;
-            if (countdownLatch === 0){
-                assert.equal(callCount, 3);
-                done();
-            }
-        };
-        for (var i = 0; i < inflightRequests; i++){
-            client.get(url, countDown);
-        }
-      });
-  });
+        sharedExecutionTest(client, 3, done);
+    });
 
+    it('defaults to performing multiple concurrent requests to the same resource if shared execution is specified', function (done) {
+        var client = Client.createClient({
+            logger: logger,
+            retries: 0
+        });
+        sharedExecutionTest(client, 3, done);
+    });
+  });
+    
   describe('.put', function () {
     it('makes a PUT request with a JSON body', function (done) {
       api.put(path, requestBody).reply(201, responseBody);
