@@ -1,5 +1,6 @@
 var nock = require('nock');
 var assert = require('chai').assert;
+var async = require('async');
 var Client = require('..');
 
 var api = nock('http://www.example.com');
@@ -28,6 +29,7 @@ describe('Caching - revalidation', function () {
 
   var firstResponseBody = 'first';
   var secondResponseBody = 'second';
+  var thirdResponseBody = 'third';
 
   var swrHeaders = {
       'cache-control': 'max-age=60, stale-while-revalidate=0.001'
@@ -35,6 +37,17 @@ describe('Caching - revalidation', function () {
   var noSwrHeaders = {
       'cache-control': 'max-age=60'
   };
+
+  beforeEach(function () {
+      nock.cleanAll();
+      stats = {
+          stat : {},
+          increment: function(key){ 
+              this.stat[key] = (this.stat[key]||0) + 1;
+          },
+          timing : function(){}
+      };
+  });
 
   var validate = function (client, resp1, resp2, resp3, cacheHitsCount, refreshCount, done) {
     client.get(url, function (err, body) {
@@ -59,16 +72,35 @@ describe('Caching - revalidation', function () {
     }, 10);
   };
 
-  beforeEach(function () {
-      nock.cleanAll();
-      stats = {
-          stat : {},
-          increment: function(key){ 
-              this.stat[key] = (this.stat[key]||0) + 1;
-          },
-          timing : function(){}
-      };
-  });
+  var staleRequest = function(req){
+      setTimeout(req, 10);
+  };
+    
+  var concurrentValidate = function (client, resp1, resp2, resp3, cacheHitsCount, refreshCount, done) {
+    client.get(url, function (err, body) {
+      assert.ifError(err);
+      assert.deepEqual(body, resp1);
+    });
+
+    staleRequest(function(){
+        async.times(5, function() {
+            client.get(url, function (err, body) {
+                assert.ifError(err);
+                assert.deepEqual(body, resp2);
+            });
+        });
+                           
+        staleRequest( function(){
+            client.get(url, function (err, body) {
+                assert.ifError(err);
+                assert.deepEqual(body, resp3);
+                assert.equal(refreshCount, stats.stat['http.cache.refresh'] || 0);
+                assert.equal(cacheHitsCount, simpleCache.cacheHits);
+                done();
+            });
+        });
+    });
+  };
 
   it('refreshes cache in the background if stale-while-revalidate is enabled', function (done) {
       client = Client.createClient({
@@ -113,5 +145,49 @@ describe('Caching - revalidation', function () {
       api.get('/').once().reply(200, secondResponseBody, noSwrHeaders);
 
       validate(client, firstResponseBody, firstResponseBody, firstResponseBody, 2, 0, done);
+  });
+
+  it('concurrent calls to a stale item only trigger a single refresh', function (done) {
+      client = Client.createClient({
+          stats : stats,
+          cache: simpleCache,
+          swr: true,
+          retries: 0
+      });            
+      
+      nock.cleanAll();
+      api.get('/').once().reply(200, firstResponseBody, swrHeaders);
+      api.get('/').once().reply(200, secondResponseBody, swrHeaders);
+
+      concurrentValidate(client, firstResponseBody, firstResponseBody, secondResponseBody, 6, 2, done);
+  });
+
+  it('stale refreshes happen after each stale period', function (done) {
+      client = Client.createClient({
+          stats : stats,
+          cache: simpleCache,
+          swr: true,
+          retries: 0
+      });            
+      
+      nock.cleanAll();
+      api.get('/').once().reply(200, firstResponseBody, swrHeaders);
+      api.get('/').once().reply(200, secondResponseBody, swrHeaders);
+      api.get('/').once().reply(200, thirdResponseBody, swrHeaders);
+
+      var chain = function(expected){
+          client.get(url, function (err, body) {
+              assert.deepEqual(body, expected.shift());
+              if (expected.length > 0){
+                  staleRequest( function(){ chain(expected); } );
+              } else {
+                  assert.equal(stats.stat['http.cache.refresh'] || 0, 3);
+                  assert.equal(simpleCache.cacheHits, 3);
+                  done();
+              }
+          });
+      };
+
+      chain ([firstResponseBody, firstResponseBody, secondResponseBody, thirdResponseBody]);
   });
 });
