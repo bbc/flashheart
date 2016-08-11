@@ -489,57 +489,56 @@ describe('Rest Client', function () {
       });
     });
 
-    it('protects downstream services from the thundering herd problem by sharing execution of multiple concurrent requests for the same resource if enabled', function (done) {
-      var callCount = 0;
-      var inflightRequests = 3;
-      var countdownLatch = inflightRequests;
-      nock.cleanAll();
-      api.get('/').reply(function(uri, body, cb) {
-        callCount = callCount + 1;
-        setTimeout(function() {
-          cb(null, [200, responseBody]);
-        }, 0);
-      });
-      var countDown = function () {
-        countdownLatch = countdownLatch - 1;
-        if (countdownLatch === 0){
-          assert.equal(callCount, 1);
-          done();
-        }
-      };
-      client = Client.createClient({
-        logger: logger,
-        retries: 0,
-        sharedExecution : true
-      });
-      for (var i = 0; i < inflightRequests; i++){
-        client.get(url, countDown);
-      }
-    });
+    var sharedExecutionTest = function(client, expectedCallCount, done){
+         var callCount = 0;
+         var inflightRequests = 3;
+         var countdownLatch = inflightRequests;
+         nock.cleanAll();
+         api.get('/').times(inflightRequests).reply(function(uri, body, cb) {
+           setTimeout(function() {
+             callCount = callCount + 1;
+             cb(null, [200, {'test' : true}]);
+           }, 0);
+         });
+         var countDown = function (error, body, response) {
+           countdownLatch = countdownLatch - 1;
+           if (countdownLatch === 0){
+             assert.equal(callCount, expectedCallCount);
+             done();
+           }
+         };
+         for (var i = 0; i < inflightRequests; i++){
+           client.get(url, countDown);
+         }
+       };
 
-    it('performs multiple concurrent requests to the same resource if shared execution is not enabled', function (done) {
-      var callCount = 0;
-      var inflightRequests = 3;
-      var countdownLatch = inflightRequests;
-      nock.cleanAll();
-      api.get('/').reply(function(uri, body, cb) {
-        callCount = callCount + 1;
-        setTimeout(function() {
-          cb(null, [200, responseBody]);
-        }, 0);
-      });
-      var countDown = function () {
-        countdownLatch = countdownLatch - 1;
-        if (countdownLatch === 0){
-          assert.equal(callCount, 3);
-          done();
-        }
-      };
-      for (var i = 0; i < inflightRequests; i++){
-        client.get(url, countDown);
-      }
-    });
-    
+       it('shares execution of multiple concurrent requests for the same resource if enabled', function (done) {
+         var client = Client.createClient({
+           logger: logger,
+           retries: 0,
+           sharedExecution : true
+         });
+         sharedExecutionTest(client, 1, done);
+
+       });
+
+       it('performs multiple concurrent requests to the same resource if shared execution is not enabled', function (done) {
+         var client = Client.createClient({
+           logger: logger,
+           retries: 0,
+           sharedExecution : false
+         });
+         sharedExecutionTest(client, 3, done);
+       });
+
+       it('defaults to performing multiple concurrent requests to the same resource if shared execution is not specified', function (done) {
+         var client = Client.createClient({
+           logger: logger,
+           retries: 0
+         });
+         sharedExecutionTest(client, 3, done);
+       });
+
   });
 
   describe('.put', function () {
