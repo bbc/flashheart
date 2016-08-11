@@ -489,37 +489,39 @@ describe('Rest Client', function () {
       });
     });
 
-    var sharedExecutionTest = function(client, expectedCallCount, done){
-         var callCount = 0;
-         var inflightRequests = 3;
-         var countdownLatch = inflightRequests;
-         nock.cleanAll();
-         api.get('/').times(inflightRequests).reply(function(uri, body, cb) {
-           setTimeout(function() {
-             callCount = callCount + 1;
-             cb(null, [200, {'test' : true}]);
-           }, 0);
-         });
-         var countDown = function (error, body, response) {
-           countdownLatch = countdownLatch - 1;
-           if (countdownLatch === 0){
-             assert.equal(callCount, expectedCallCount);
-             done();
-           }
-         };
-         for (var i = 0; i < inflightRequests; i++){
-           client.get(url, countDown);
-         }
-       };
+    var sharedExecutionTest = function (client, expectedCallCount, done) {
+      var inflightRequests = 3;
+      nock.cleanAll();
 
-       it('shares execution of multiple concurrent requests for the same resource if enabled', function (done) {
-         var client = Client.createClient({
-           logger: logger,
-           retries: 0,
-           sharedExecution : true
-         });
-         sharedExecutionTest(client, 1, done);
+      var callCount = 0;
 
+      api.get('/').times(expectedCallCount).reply(function(uri, body, cb) {
+        callCount++;
+        setTimeout(function() {
+          cb(null, [200, responseBody]);
+        }, 0);
+      });
+
+      async.times(inflightRequests,
+        function (n, next) {
+          client.get(url, function (err, body) {
+            next(err,body);
+          });
+        }, function (err, bodies) {
+          assert.isNull(err);
+          assert.equal(bodies.length, inflightRequests);
+          assert.equal(callCount, expectedCallCount);
+          done();
+        });
+      };
+
+      it('shares execution of multiple concurrent requests for the same resource if enabled', function (done) {
+        var client = Client.createClient({
+          logger: logger,
+          retries: 0,
+          sharedExecution : true
+        });
+        sharedExecutionTest(client, 1, done);
        });
 
        it('performs multiple concurrent requests to the same resource if shared execution is not enabled', function (done) {
