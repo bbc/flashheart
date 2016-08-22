@@ -17,12 +17,18 @@ describe('Caching - revalidation', function () {
           this.cacheHits = 0;
       },
       get : function(key, cb){
-          if (this.storage[key])
+          if (this.storage[key] && this.storage[key].expiry >= new Date().getTime()){
               this.cacheHits++;
-          cb( null, { item : this.storage[key] } );
+              cb( null, { item : this.storage[key].value } );
+          } else {
+              cb( null, { item : null });
+          }
       },
       set : function(key, value, ttl, cb){
-          this.storage[key] = value;
+          this.storage[key] = {
+              value : value,
+              expiry : new Date().getTime() + ttl
+          };
           cb();
       }
   };
@@ -32,11 +38,15 @@ describe('Caching - revalidation', function () {
   var thirdResponseBody = 'third';
 
   var swrHeaders = {
-      'cache-control': 'max-age=60, stale-while-revalidate=0.001'
+      'cache-control': 'max-age=1, stale-while-revalidate=30'
+  };
+  var swrHeadersWithLongerMaxAge = {
+      'cache-control': 'max-age=30, stale-while-revalidate=30'
   };
   var noSwrHeaders = {
-      'cache-control': 'max-age=60'
+      'cache-control': 'max-age=30'
   };
+  var staleTimeout = 1010;
 
   beforeEach(function () {
       nock.cleanAll();
@@ -50,9 +60,10 @@ describe('Caching - revalidation', function () {
   });
 
   var validate = function (client, resp1, resp2, resp3, cacheHitsCount, refreshCount, done) {
+
     client.get(url, function (err, body) {
-      assert.ifError(err);
-      assert.deepEqual(body, resp1);
+        assert.ifError(err);
+        assert.deepEqual(body, resp1);
     });
     setTimeout(function(){
         client.get(url, function (err, body) {
@@ -67,13 +78,13 @@ describe('Caching - revalidation', function () {
                     assert.equal(simpleCache.cacheHits, cacheHitsCount);
                     done();
                 });
-            }, 10);
+            }, staleTimeout);
         });
-    }, 10);
+    }, staleTimeout);
   };
 
   var staleRequest = function(req){
-      setTimeout(req, 10);
+      setTimeout(req, staleTimeout);
   };
     
   var concurrentValidate = function (client, resp1, resp2, resp3, cacheHitsCount, refreshCount, done) {
@@ -83,13 +94,6 @@ describe('Caching - revalidation', function () {
     });
 
     staleRequest(function(){
-        async.times(5, function() {
-            client.get(url, function (err, body) {
-                assert.ifError(err);
-                assert.deepEqual(body, resp2);
-            });
-        });
-                           
         staleRequest( function(){
             client.get(url, function (err, body) {
                 assert.ifError(err);
@@ -99,10 +103,19 @@ describe('Caching - revalidation', function () {
                 done();
             });
         });
+        
+        async.times(5, function() {
+            client.get(url, function (err, body) {
+                assert.ifError(err);
+                assert.deepEqual(body, resp2);
+            });
+        });
+                           
     });
   };
 
   it('refreshes cache in the background if stale-while-revalidate is enabled', function (done) {
+      this.timeout(0);
       client = Client.createClient({
           cache: simpleCache,
           stats : stats,
@@ -117,7 +130,8 @@ describe('Caching - revalidation', function () {
       validate(client, firstResponseBody, firstResponseBody, secondResponseBody, 2, 2, done);
   });
 
-  it('serves from cache if stale-while-revalidate is in response but disabled', function (done) {
+  it('honours just the max age for cache if stale-while-revalidate is in response but disabled', function (done) {
+      this.timeout(0);
       client = Client.createClient({
           stats : stats,
           cache: simpleCache,
@@ -127,12 +141,13 @@ describe('Caching - revalidation', function () {
       
       nock.cleanAll();
       api.get('/').once().reply(200, firstResponseBody, swrHeaders);
-      api.get('/').once().reply(200, secondResponseBody, swrHeaders);
+      api.get('/').once().reply(200, secondResponseBody, swrHeadersWithLongerMaxAge);
 
-      validate(client, firstResponseBody, firstResponseBody, firstResponseBody, 2, 0, done);
+      validate(client, firstResponseBody, secondResponseBody, secondResponseBody, 1, 0, done);
   });
 
   it('serves from cache if stale-while-revalidate is enabled but missing from response', function (done) {
+      this.timeout(0);
       client = Client.createClient({
           stats : stats,
           cache: simpleCache,
@@ -148,6 +163,7 @@ describe('Caching - revalidation', function () {
   });
 
   it('concurrent calls to a stale item only trigger a single refresh', function (done) {
+      this.timeout(0);
       client = Client.createClient({
           stats : stats,
           cache: simpleCache,
@@ -163,6 +179,7 @@ describe('Caching - revalidation', function () {
   });
 
   it('stale refreshes happen after each stale period', function (done) {
+      this.timeout(0);
       client = Client.createClient({
           stats : stats,
           cache: simpleCache,
