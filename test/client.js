@@ -488,6 +488,59 @@ describe('Rest Client', function () {
         done();
       });
     });
+
+    var sharedExecutionTest = function (client, expectedCallCount, done) {
+      var inflightRequests = 3;
+      nock.cleanAll();
+
+      var callCount = 0;
+
+      api.get('/').times(expectedCallCount).reply(function(uri, body, cb) {
+        callCount++;
+        setTimeout(function() {
+          cb(null, [200, responseBody]);
+        }, 0);
+      });
+
+      async.times(inflightRequests,
+        function (n, next) {
+          client.get(url, function (err, body) {
+            next(err,body);
+          });
+        }, function (err, bodies) {
+          assert.isNull(err);
+          assert.equal(bodies.length, inflightRequests);
+          assert.equal(callCount, expectedCallCount);
+          done();
+        });
+      };
+
+      it('shares execution of multiple concurrent requests for the same resource if enabled', function (done) {
+        var client = Client.createClient({
+          logger: logger,
+          retries: 0,
+          sharedExecution : true
+        });
+        sharedExecutionTest(client, 1, done);
+       });
+
+       it('performs multiple concurrent requests to the same resource if shared execution is not enabled', function (done) {
+         var client = Client.createClient({
+           logger: logger,
+           retries: 0,
+           sharedExecution : false
+         });
+         sharedExecutionTest(client, 3, done);
+       });
+
+       it('defaults to performing multiple concurrent requests to the same resource if shared execution is not specified', function (done) {
+         var client = Client.createClient({
+           logger: logger,
+           retries: 0
+         });
+         sharedExecutionTest(client, 3, done);
+       });
+
   });
 
   describe('.put', function () {

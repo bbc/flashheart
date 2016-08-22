@@ -24,6 +24,7 @@ npm install --save flashheart
 * [StatsD integration](#stats)
 * [Retries](#retries)
 * [Circuit breaker](#circuit-breaker)
+* [Shared Execution](#shared-execution)
 
 ## Usage
 
@@ -155,6 +156,17 @@ const client = require('flashheart').createClient({
   circuitBreakerResetTimeout: 30000
 });
 ```
+### Shared Execution
+
+ The client can be configured to share execution of HTTP GET requests, protecting downstream services from the thundering herd. It can be enabled/disabled by providing a boolean value for the `sharedExecution` property. By default this is disabled.
+
+ For example to enable shared execution:
+
+ ```js
+ const client = require('flashheart').createClient({
+     sharedExecution: true
+ });
+ ```
 
 ### Advanced configuration
 
