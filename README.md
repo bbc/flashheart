@@ -24,6 +24,7 @@ npm install --save flashheart
 * [StatsD integration](#stats)
 * [Retries](#retries)
 * [Circuit breaker](#circuit-breaker)
+* [Shared Execution](#shared-execution)
 
 ## Usage
 
@@ -78,6 +79,14 @@ The cache varies on _all_ request options (and therefore, headers) by default. I
 const client = require('flashheart').createClient({
   cache: storage,
   doNotVary: ['Request-Id']
+});
+```
+
+The cache behaviour can be enabled to act on stale-while-revalidate headers. When enabled this causes the cache to serve stale but refresh the cache entry in the background. It is enabled with the `swr` option:
+```js
+const client = require('flashheart').createClient({
+  cache: storage,
+  swr: true
 });
 ```
 
@@ -153,6 +162,17 @@ For example to trip after 200 failures and try to reset after 30 seconds:
 const client = require('flashheart').createClient({
   circuitBreakerMaxFailures: 200,
   circuitBreakerResetTimeout: 30000
+});
+```
+### Shared Execution
+
+The client can be configured to share execution of HTTP GET requests, protecting downstream services from the thundering herd. It can be enabled/disabled by providing a boolean value for the `sharedExecution` property. By default this is disabled.
+
+For example to enable shared execution:
+
+```js
+const client = require('flashheart').createClient({
+    sharedExecution: true
 });
 ```
 

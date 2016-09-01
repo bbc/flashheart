@@ -422,10 +422,10 @@ describe('Caching', function () {
     });
 
     nock.cleanAll();
-    api.get('/').times(6).reply(500);
+    api.get(/\/\d?/).times(3).reply(500);
 
-    async.times(5, function (i, cb) {
-      client.get(url, function () {
+    async.times(3, function (i, cb) {
+      client.get(url + i, function () {
         cb();
       });
     }, function () {
