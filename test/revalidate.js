@@ -1,6 +1,7 @@
 var nock = require('nock');
 var assert = require('chai').assert;
 var async = require('async');
+var lolex = require('lolex');
 var Client = require('..');
 
 var api = nock('http://www.example.com');
@@ -47,9 +48,19 @@ describe('Caching - revalidation', function () {
       'cache-control': 'max-age=30'
   };
   var staleTimeout = 1010;
+    
+  // a real world back off to allow other async functions to complete (e.g. calls to nock)
+  var executionBackoff = 5;
+  var clock;    
 
+  var unmockedTimeout = setTimeout;
+    
   beforeEach(function () {
       nock.cleanAll();
+      if (clock){
+          clock.uninstall();
+      }
+      clock = lolex.install();
       stats = {
           stat : {},
           increment: function(key){ 
@@ -59,42 +70,53 @@ describe('Caching - revalidation', function () {
       };
   });
 
+
+  var runAsyncAfterStaleTimeout = function(f){
+      unmockedTimeout(function(){
+         clock.tick(staleTimeout);
+         f();
+      }, executionBackoff);
+  };
+
   var validate = function (client, resp1, resp2, resp3, cacheHitsCount, refreshCount, done) {
 
     client.get(url, function (err, body) {
         assert.ifError(err);
-        assert.deepEqual(body, resp1);
+        assert.deepEqual(body, resp1, 'Initial response was not as expected');
     });
-    setTimeout(function(){
+
+    runAsyncAfterStaleTimeout(function(){
         client.get(url, function (err, body) {
             assert.ifError(err);
-            assert.deepEqual(body, resp2);
-            
-            setTimeout( function(){
+            assert.deepEqual(body, resp2, 'Reponse after first stale timeout was not as expected');
+
+            runAsyncAfterStaleTimeout(function(){
                 client.get(url, function (err, body) {
                     assert.ifError(err);
-                    assert.deepEqual(body, resp3);
+                    assert.deepEqual(body, resp3, 'Response after second stale timeout has elapsed was not as expected');
                     assert.equal(stats.stat['http.cache.refresh'] || 0, refreshCount);
                     assert.equal(simpleCache.cacheHits, cacheHitsCount);
                     done();
                 });
-            }, staleTimeout);
+            });
         });
-    }, staleTimeout);
+    });
   };
 
-  var staleRequest = function(req){
-      setTimeout(req, staleTimeout);
-  };
-    
   var concurrentValidate = function (client, resp1, resp2, resp3, cacheHitsCount, refreshCount, done) {
     client.get(url, function (err, body) {
-      assert.ifError(err);
-      assert.deepEqual(body, resp1);
+        assert.ifError(err);
+        assert.deepEqual(body, resp1);
     });
 
-    staleRequest(function(){
-        staleRequest( function(){
+    runAsyncAfterStaleTimeout( function(){
+        async.times(5, function() {
+            client.get(url, function (err, body) {
+                assert.ifError(err);
+                assert.deepEqual(body, resp2);
+            });
+        });
+        runAsyncAfterStaleTimeout(function(){
             client.get(url, function (err, body) {
                 assert.ifError(err);
                 assert.deepEqual(body, resp3);
@@ -103,14 +125,6 @@ describe('Caching - revalidation', function () {
                 done();
             });
         });
-        
-        async.times(5, function() {
-            client.get(url, function (err, body) {
-                assert.ifError(err);
-                assert.deepEqual(body, resp2);
-            });
-        });
-                           
     });
   };
 
@@ -196,7 +210,10 @@ describe('Caching - revalidation', function () {
           client.get(url, function (err, body) {
               assert.deepEqual(body, expected.shift());
               if (expected.length > 0){
-                  staleRequest( function(){ chain(expected); } );
+                  unmockedTimeout(function(){
+                      clock.tick(staleTimeout);
+                      chain(expected);
+                  }, 10);
               } else {
                   assert.equal(stats.stat['http.cache.refresh'] || 0, 3);
                   assert.equal(simpleCache.cacheHits, 3);
