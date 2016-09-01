@@ -210,10 +210,9 @@ describe('Caching - revalidation', function () {
           client.get(url, function (err, body) {
               assert.deepEqual(body, expected.shift());
               if (expected.length > 0){
-                  unmockedTimeout(function(){
-                      clock.tick(staleTimeout);
+                  runAsyncAfterStaleTimeout(function(){
                       chain(expected);
-                  }, 10);
+                  });
               } else {
                   assert.equal(stats.stat['http.cache.refresh'] || 0, 3);
                   assert.equal(simpleCache.cacheHits, 3);
