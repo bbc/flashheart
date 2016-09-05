@@ -99,11 +99,12 @@ describe('Caching', function () {
       error: 'An error'
     };
     var errorHeaders = {
-      'cache-control': 'max-age=5'
+      'cache-control': 'max-age=5',
+      'content-type': 'application/json',
+      'www-authenticate': 'Bearer realm="/"'
     };
 
     var cacheHeaders = errorHeaders;
-    cacheHeaders['content-type'] = 'application/json';
 
     nock.cleanAll();
     api.get('/').reply(errorResponseCode, errorResponseBody, errorHeaders);
@@ -114,7 +115,8 @@ describe('Caching', function () {
         error: {
           message: 'Received HTTP code 503 for GET http://www.example.com/',
           statusCode: errorResponseCode,
-          body: errorResponseBody
+          body: errorResponseBody,
+          headers: errorHeaders
         },
         response: {
           statusCode: errorResponseCode,
@@ -131,12 +133,19 @@ describe('Caching', function () {
       error: 'An error'
     };
 
+    var headers = {
+      'cache-control': 'max-age=5',
+      'content-type': 'application/json',
+      'www-authenticate': 'Bearer realm="/"'
+    };
+
     catbox.get.withArgs(expectedKey).yields(null, {
       item: {
         error: {
           statusCode: 503,
           message: 'Received HTTP code 503 for GET http://www.example.com/',
-          body: errorResponseBody
+          body: errorResponseBody,
+          headers: headers
         }
       }
     });
@@ -144,6 +153,7 @@ describe('Caching', function () {
       assert.ok(err);
       assert.equal(err.statusCode, 503);
       assert.deepEqual(err.body, errorResponseBody);
+      assert.deepEqual(err.headers, headers);
       done();
     });
   });

@@ -47,7 +47,7 @@ The client assumes you're working with a JSON API by default. It uses the `json:
 
 ### Errors
 
-Unlike `request`, any response with a status code greater than or equal to `400` results in an error. There's no need to manually check the status code of the response. The status code is exposed as `err.statusCode` on the returned error object, and the body (if one exists) is assigned to `err.body`.
+Unlike `request`, any response with a status code greater than or equal to `400` results in an error. There's no need to manually check the status code of the response. The status code is exposed as `err.statusCode` on the returned error object, the body (if one exists) is assigned to `err.body` and the headers are assigned to `err.headers`.
 
 ### Timeout
 

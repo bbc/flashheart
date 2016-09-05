@@ -127,6 +127,20 @@ describe('Rest Client', function () {
       });
     });
 
+    it('includes the headers in the error for a non 200 response', function (done) {
+      nock.cleanAll();
+      api.get(path).reply(500, {
+        error: 'this is the body of the error'
+      }, {
+        'www-authenticate': 'Bearer realm="/"'
+      });
+      client.get(url, function (err) {
+        assert(err);
+        assert.equal(err.headers['www-authenticate'], 'Bearer realm="/"');
+        done();
+      });
+    });
+
     it('returns an error when the request fails', function (done) {
       nock.cleanAll();
       api.get('/').delayConnection(1000).reply(200, responseBody);
