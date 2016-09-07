@@ -98,7 +98,9 @@ describe('Rest Client', function () {
 
     async.times(2, function (i, cb) {
       client.get(url, function (err) {
-        cb(err, { 'status': true });
+        cb(err, {
+          'status': true
+        });
       });
     }, function (err, results) {
       var diff = process.hrtime(time);
