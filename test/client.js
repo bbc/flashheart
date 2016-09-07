@@ -86,6 +86,29 @@ describe('Rest Client', function () {
     });
   });
 
+  it('can throttle requests for a given time interval', function (done) {
+    var time = process.hrtime();
+    var client = Client.createClient({
+      rateLimitLimit: 1,
+      rateLimitInterval: 1000
+    });
+
+    nock.cleanAll();
+    api.get(path).times(2).reply(200);
+
+    async.times(2, function (i, cb) {
+      client.get(url, function (err) {
+        cb(err, { 'status': true });
+      });
+    }, function (err, results) {
+      var diff = process.hrtime(time);
+      assert.ifError(err);
+      assert.strictEqual(results.length, 2, 'The two requests went through');
+      assert.strictEqual(diff[0], 1, 'There was one second interval between each request');
+      done();
+    });
+  });
+
   describe('.get', function () {
     it('returns body of a JSON response', function (done) {
       client.get(url, function (err, body) {

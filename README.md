@@ -19,6 +19,7 @@ npm install --save flashheart
 * [Parses JSON responses](#json)
 * [Understands HTTP errors](#errors)
 * [Timeout](#timeout)
+* [Rate Limiting](#rate-limiting)
 * [Caching](#caching)
 * [Logging](#logging)
 * [StatsD integration](#stats)
@@ -58,6 +59,19 @@ const client = require('flashheart').createClient({
   timeout: 50
 });
 ```
+
+### Rate Limiting
+
+The client has no rate limitation by default. You can specify how many requests are allowed to happen within a given interval — respectively with the `rateLimitLimit` and `rateLimitInterval` properties.
+
+```js
+const client = require('flashheart').createClient({
+  rateLimitLimit: 10,         // Allow a maxmimum of 10 requests…
+  rateLimitInterval: 6000,    // …in an interval of 6 seconds (6000ms)
+});
+```
+
+*Note*: rate limiting is provided by [simple-rate-limiter](https://www.npmjs.com/package/simple-rate-limiter).
 
 ### Caching
 
