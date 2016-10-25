@@ -168,12 +168,12 @@ describe('Rest Client', function () {
 
     it('returns an error when the request fails', function (done) {
       nock.cleanAll();
-      api.get('/').delayConnection(1000).reply(200, responseBody);
+      api.get('/').socketDelay(1000).reply(200, responseBody);
       client.get(url, {
         timeout: 20
       }, function (err) {
         assert(err);
-        assert.equal(err.message, 'Request failed for http://www.example.com/ ETIMEDOUT');
+        assert.equal(err.message, 'Request failed for http://www.example.com/ ESOCKETTIMEDOUT');
         done();
       });
     });
@@ -419,12 +419,12 @@ describe('Rest Client', function () {
       nock.cleanAll();
 
       api.get('/')
-        .delayConnection(1000)
+        .socketDelay(1000)
         .reply(200, responseBody);
 
       client.get(url, function (err) {
         assert(err);
-        assert.equal(err.message, 'Request failed for http://www.example.com/ ETIMEDOUT');
+        assert.equal(err.message, 'Request failed for http://www.example.com/ ESOCKETTIMEDOUT');
         done();
       });
     });
