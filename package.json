@@ -1,6 +1,6 @@
 {
   "name": "flashheart",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "A fully-featured REST client built for ease-of-use and resilience",
   "main": "index.js",
   "scripts": {
@@ -59,7 +59,7 @@
     "debug": "^2.2.0",
     "levee": "^1.2.0",
     "lodash": "^4.2.0",
-    "request": "^2.67.0",
+    "request": "2.75.0",
     "retry": "^0.10.0",
     "simple-rate-limiter": "^0.2.3",
     "wreck": "^5.6.0"
