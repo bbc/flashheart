@@ -58,7 +58,7 @@
   "dependencies": {
     "debug": "^2.2.0",
     "levee": "^1.2.0",
-    "lodash": "^4.2.0",
+    "lodash": "^4.16.5",
     "request": "2.75.0",
     "retry": "^0.10.0",
     "simple-rate-limiter": "^0.2.3",
