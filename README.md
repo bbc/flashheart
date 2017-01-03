@@ -25,6 +25,7 @@ npm install --save flashheart
 * [StatsD integration](#stats)
 * [Retries](#retries)
 * [Circuit breaker](#circuit-breaker)
+* [Promises](#promises)
 
 ## Usage
 
@@ -215,6 +216,21 @@ const request = require('request').defaults({
 const client = require('flashheart').createClient({
   request: request
 });
+```
+
+### Promises
+
+Flashheart uses callbacks, but we expose the `Client` constructor to make it easy to [promisify](http://bluebirdjs.com/docs/api/promisification.html) the entire library:
+
+```js
+const Promise = require('bluebird');
+const Client = require('flashheart').Client;
+const client = require('flashheart').createClient();
+
+Promise.promisifyAll(Client.prototype);
+
+client.getAsync('http://httpstat.us/200')
+  .then((body) => console.log(body));
 ```
 
 ## API
