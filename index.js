@@ -13,3 +13,5 @@ module.exports.createClient = function (opts) {
 
   return client;
 };
+
+module.exports.Client = Client;
