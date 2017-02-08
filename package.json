@@ -62,6 +62,6 @@
     "request": "2.78.0",
     "retry": "^0.10.0",
     "simple-rate-limiter": "^0.2.3",
-    "wreck": "^5.6.0"
+    "wreck": "^8.0.0"
   }
 }
