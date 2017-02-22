@@ -178,6 +178,22 @@ describe('Rest Client', function () {
       });
     });
 
+    it('includes the query strings in the url when a request fails', function (done) {
+      nock.cleanAll();
+      api.get('/?a=1&b=2').socketDelay(1000).reply(200, responseBody);
+      client.get(url, {
+        timeout: 20,
+        qs: {
+          a: 1,
+          b: 2
+        }
+      }, function (err) {
+        assert(err);
+        assert.equal(err.message, 'Request failed for http://www.example.com/?a=1&b=2 ESOCKETTIMEDOUT');
+        done();
+      });
+    });
+
     it('logs each request at info level when a logger is passed in', function (done) {
       client = Client.createClient({
         logger: logger
