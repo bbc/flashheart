@@ -189,7 +189,7 @@ describe('Rest Client', function () {
         }
       }, function (err) {
         assert(err);
-        assert.equal(err.message, `Request failed for http://www.example.com/?a=1&b=2 ESOCKETTIMEDOUT`);
+        assert.equal(err.message, 'Request failed for http://www.example.com/?a=1&b=2 ESOCKETTIMEDOUT');
         done();
       });
     });
