@@ -154,16 +154,27 @@ You can also add the `name` option on a per-request basis which will include the
 
 ### Retries
 
-By default the client retries failed requests once, with a delay of 100 milliseconds between attempts. The number of times to retry and the delay between retries can be configured using the `retries` and `retryTimeout` properties.
+By default the client retries failed requests once, with a delay of 100 milliseconds between attempts. The number of times to retry and the delay between retries can be configured using the `retries`, `retryTimeout`, and `backoffFactor` properties.
 
-For example, to retry 10 times, with a delay of 500ms:
+`backoffFactor` can be used to make the time between attempt non-linear. It's used in concert with the `retryTimeout`
+and the attempt number (starting at 0) like so: `delay = retryTimeout * 2^retryNumber`.
+
+For example, to retry twice, with a delay of 100ms, and exponential backoff:
 
 ```js
 const client = require('flashheart').createClient({
-  retries: 10,
-  retryTimeout: 500
+  retries: 3,
+  retryTimeout: 100,
+  backoffFactor: 2,
 });
 ```
+
+This would result in the following delays between retries:
+* attempt 0: 100ms * 2^0 == 100ms
+* attempt 1: 100ms * 2^1 == 200ms
+* attempt 2: 100ms * 2^2 == 400ms
+
+
 
 Default retries can be overridden using method options:
 ```js

@@ -23,10 +23,15 @@ var responseBody = requestBody;
 function nockRetries(retry, opts) {
   const httpMethod = _.get(opts, 'httpMethod') || 'get';
   const successCode = _.get(opts, 'successCode') || 200;
+  const requestCb = _.get(opts, 'requestCb');
 
   nock.cleanAll();
-  api[httpMethod](path).times(retry).reply(500);
+  const scope = api[httpMethod](path).times(retry).reply(500);
   api[httpMethod](path).reply(successCode);
+
+  if (requestCb) {
+    scope.on('request', requestCb);
+  }
 }
 
 describe('Rest Client', function () {
@@ -370,6 +375,40 @@ describe('Rest Client', function () {
         done();
       });
     });
+
+    it('retries with the correct delay between attempts', function (done) {
+      const delays = [];
+
+      client = Client.createClient({
+        retryTimeout: 100,
+        backoffFactor: 2
+      });
+
+      nockRetries(3, {
+        httpMethod: 'put',
+        successCode: 201,
+        requestCb: function() {
+          delays.push(+new Date());
+        }
+      });
+
+      client.put(url, requestBody, {
+        retries: 3
+      }, function() {
+        assert.lengthOf(delays, 4, 'There should be four attempts');
+        const delay1 = delays[1] - delays[0];
+        const delay2 = delays[2] - delays[1];
+        const delay3 = delays[3] - delays[2];
+
+        // They should be roughly 100 * 2^attempt
+        assert.approximately(delay1, 100, 50);
+        assert.approximately(delay2, 200, 50);
+        assert.approximately(delay3, 400, 50);
+
+        done();
+      });
+    });
+
 
     it('records a timer for the number of attempts', function (done) {
       nockRetries(1);
