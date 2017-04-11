@@ -895,6 +895,7 @@ describe('Rest Client', function () {
       client.head(url, function (err, body, resp) {
         assert.ifError(err);
         assert.strictEqual(resp.statusCode, 200);
+        assert.strictEqual(body, undefined);
         done();
       });
     });
