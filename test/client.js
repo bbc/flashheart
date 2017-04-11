@@ -888,7 +888,7 @@ describe('Rest Client', function () {
     });
   });
 
-  describe('.head', () => {
+  describe('.head', function () {
     it('makes a head request', function (done) {
       api.head(path).reply(200);
 
