@@ -887,4 +887,62 @@ describe('Rest Client', function () {
       });
     });
   });
+
+  describe('.head', () => {
+    it('makes a head request', function (done) {
+      api.head(path).reply(200);
+
+      client.head(url, function (err, body, resp) {
+        assert.ifError(err);
+        assert.strictEqual(resp.statusCode, 200);
+        done();
+      });
+    });
+
+    it('returns an error when the API returns a 5XX status code', function (done) {
+      api.head(path).reply(500);
+
+      client.head(url, function (err) {
+        assert.ok(err);
+        done();
+      });
+    });
+
+    it('retries failed requests', function (done) {
+      client = Client.createClient({
+        retries: 2,
+        retryTimeout: 0
+      });
+      nockRetries(2, {
+        httpMethod: 'head',
+        successCode: 200
+      });
+
+      client.head(url, done);
+    });
+
+    it('trips the circuit breaker when multiple requests fail', function (done) {
+      client = Client.createClient({
+        retries: 0,
+        circuitBreakerMaxFailures: 3
+      });
+
+      nock.cleanAll();
+      api.head(path).times(6).reply(500);
+
+      async.times(5, function (i, cb) {
+        client.head(url, {}, function () {
+          // send an empty callback to avoid the error
+          // from stopping the `times`
+          cb();
+        });
+      }, function () {
+        client.head(url, {}, function (err) {
+          assert(err);
+          assert.include(err.message, 'Circuit breaker is open');
+          done();
+        });
+      });
+    });
+  });
 });

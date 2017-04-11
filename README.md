@@ -280,6 +280,14 @@ Creates a new client.
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
 * `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values)
 
+### `client.head`
+
+#### Parameters
+
+* `url` - The URL to be requested
+* `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
+* `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values)
+
 ### `client.put`
 
 #### Parameters
@@ -314,13 +322,6 @@ Creates a new client.
 * `url` - The URL to be requested
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
 * `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values)
-
-## Contributing
-
-* If you're unsure if a feature would make a good addition, you can always [create an issue](https://github.com/bbc/flashheart/issues/new) first.
-* We aim for 100% test coverage. Please write tests for any new functionality or changes.
-* Make sure your code meets our linting standards. Run `npm run lint` to check your code.
-* Maintain the existing coding style. There are some settings in `.jsbeautifyrc` to help.
 
 ## Why Flashheart?
 
