@@ -447,6 +447,11 @@ describe('Caching', function () {
     });
   });
 
+  it('supports the HEAD method', function (done) {
+    api.head('/').reply(200);
+    client.head(url, {}, done);
+  });
+
   it('supports the PUT method', function (done) {
     api.put('/', {}).reply(200);
     client.put(url, {}, done);
