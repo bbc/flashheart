@@ -153,7 +153,7 @@ describe('Caching', function () {
     });
   });
 
-  it.only('attempts to serve stale if error received and staleIfError is enabled', function(done) {
+  it('attempts to serve stale if error received and staleIfError is enabled', function (done) {
     var cachedResponseBody = {
       foo: 'baz'
     };
@@ -166,8 +166,6 @@ describe('Caching', function () {
       'content-type': 'application/json',
       'www-authenticate': 'Bearer realm="/"'
     };
-
-    var cacheHeaders = errorHeaders;
 
     catbox.get.withArgs(expectedStaleKey).yields(null, {
       item: {
@@ -189,8 +187,17 @@ describe('Caching', function () {
     });
   });
 
-  it('does not store stale cache if staleIfError is not enabled');
-  it('stores error in cache if no stale content available');
+  it('does not store stale cache if staleIfError is not enabled', function (done) {
+    client.get(url, function (err) {
+      assert.ifError(err);
+      sinon.assert.calledOnce(catbox.set);
+      sinon.assert.calledWith(catbox.set, expectedKey, {
+        body: responseBody,
+        response: expectedCachedResponse
+      }, 60000);
+      done();
+    });
+  });
 
   it('returns an error from the cache if it exists', function (done) {
     var errorResponseBody = {
@@ -347,6 +354,32 @@ describe('Caching', function () {
     });
   });
 
+  it('stores content for stale duration if staleIfError enabled and max-age value is zero', function (done) {
+    var headers = {
+      'cache-control': 'max-age=0,stale-if-error=7200'
+    };
+    var expectedCachedResponse = {
+      statusCode: 200,
+      headers: {
+        'cache-control': 'max-age=0,stale-if-error=7200',
+        'content-type': 'application/json'
+      },
+      elapsedTime: nockElapsedTime
+    };
+
+    nock.cleanAll();
+    api.get('/').reply(200, responseBody, headers);
+    staleClient.get(url, function (err) {
+      assert.ifError(err);
+      sinon.assert.calledOnce(catbox.set);
+      sinon.assert.calledWith(catbox.set, expectedStaleKey, {
+        body: responseBody,
+        response: expectedCachedResponse
+      }, 7200000);
+      done();
+    });
+  });
+
   it('does not cache the response if the max-age value is invalid', function (done) {
     var headers = {
       'cache-control': 'max-age=invalid'
@@ -361,9 +394,31 @@ describe('Caching', function () {
     });
   });
 
-  it('stores content for stale duration if staleIfError enabled and max-age=0');
-  it('stores content for stale duration if staleIfError enabled and max-age=invalid');
-  it('does not store a stale value if stale-if-error missing');
+  it('does not store a stale value if stale-if-error missing', function (done) {
+    var headers = {
+      'cache-control': 'max-age=60'
+    };
+    var expectedCachedResponse = {
+      statusCode: 200,
+      headers: {
+        'cache-control': 'max-age=60',
+        'content-type': 'application/json'
+      },
+      elapsedTime: nockElapsedTime
+    };
+
+    nock.cleanAll();
+    api.get('/').reply(200, responseBody, headers);
+    staleClient.get(url, function (err) {
+      assert.ifError(err);
+      sinon.assert.calledOnce(catbox.set);
+      sinon.assert.calledWith(catbox.set, expectedKey, {
+        body: responseBody,
+        response: expectedCachedResponse
+      }, 60000);
+      done();
+    });
+  });
 
   it('respects the doNotVary option when creating a cache key', function (done) {
     var reqheaders = {
@@ -484,7 +539,38 @@ describe('Caching', function () {
     });
   });
 
-  it('increments a counter when a stale response is sent');
+  it('increments a counter when a stale response is sent', function (done) {
+    var cachedResponseBody = {
+      foo: 'baz'
+    };
+    var errorResponseCode = 503;
+    var errorResponseBody = {
+      error: 'An error'
+    };
+    var errorHeaders = {
+      'cache-control': 'max-age=5',
+      'content-type': 'application/json',
+      'www-authenticate': 'Bearer realm="/"'
+    };
+
+    catbox.get.withArgs(expectedStaleKey).yields(null, {
+      item: {
+        body: cachedResponseBody,
+        response: expectedCachedResponse
+      }
+    });
+
+    nock.cleanAll();
+    api.get('/').reply(errorResponseCode, errorResponseBody, errorHeaders);
+
+    staleClient.get(url, function (err, body, res) {
+      assert.ifError(err);
+      assert.deepEqual(body, cachedResponseBody);
+      assert.deepEqual(res, expectedCachedResponse);
+      sinon.assert.calledWith(stats.increment, 'http.cache.stale');
+      done();
+    });
+  });
 
   it('increments a counter for each cache miss', function (done) {
     client.get(url, function (err) {
