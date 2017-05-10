@@ -199,6 +199,28 @@ describe('Caching', function () {
     });
   });
 
+  it('does not read stale cache if staleIfError is not enabled', function (done) {
+    var errorResponseCode = 503;
+    var errorResponseBody = {
+      error: 'An error'
+    };
+    var errorHeaders = {
+      'cache-control': 'max-age=5',
+      'content-type': 'application/json',
+      'www-authenticate': 'Bearer realm="/"'
+    };
+
+    nock.cleanAll();
+    api.get('/').reply(errorResponseCode, errorResponseBody, errorHeaders);
+    client.get(url, function (err) {
+      assert.ok(err);
+      assert.equal(err.statusCode, 503);
+      sinon.assert.calledOnce(catbox.get);
+      sinon.assert.calledWith(catbox.get, expectedKey);
+      done();
+    });
+  });
+
   it('returns an error from the cache if it exists', function (done) {
     var errorResponseBody = {
       error: 'An error'
