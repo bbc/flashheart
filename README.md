@@ -87,6 +87,21 @@ const client = require('flashheart').createClient({
 });
 ```
 
+Optionally, you can enable `staleIfError` which will start listening to the `stale-if-error` directive as well. This stores the response for the duration of the `stale-if-error` directive as well as the `max-age` and will try to retrieve them in this order:
+
+* `max-age` stored version
+* fresh version
+* `stale-if-error` version
+
+This is enabled simply by passing in the `staleIfError` parameter to `createClient`:
+
+```js
+const client = require('flashheart').createClient({
+  cache: storage,
+  staleIfError: true
+});
+```
+
 The cache varies on _all_ request options (and therefore, headers) by default. If you don't want to vary on a particular header, use the `doNotVary` option:
 
 ```js

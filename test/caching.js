@@ -16,7 +16,7 @@ var nockElapsedTime = sinon.match.number;
 var expectedCachedResponse = {
   statusCode: 200,
   headers: {
-    'cache-control': 'max-age=60',
+    'cache-control': 'max-age=60,stale-if-error=7200',
     'content-type': 'application/json'
   },
   elapsedTime: nockElapsedTime
@@ -26,15 +26,22 @@ describe('Caching', function () {
   var stats;
   var logger;
   var client;
+  var staleClient;
   var catbox;
 
   var headers = {
-    'cache-control': 'max-age=60'
+    'cache-control': 'max-age=60,stale-if-error=7200'
   };
 
   var expectedKey = {
     segment: 'flashheart:' + require('../package').version,
     id: url
+  };
+
+  var expectedStaleKey = {
+    segment: 'flashheart:' + require('../package').version,
+    id: url,
+    stale: true
   };
 
   beforeEach(function () {
@@ -60,6 +67,13 @@ describe('Caching', function () {
       logger: logger,
       retries: 0
     });
+    staleClient = Client.createClient({
+      cache: catbox,
+      stats: stats,
+      logger: logger,
+      retries: 0,
+      staleIfError: true
+    });
   });
 
   it('caches the body and the response based on its max-age header', function (done) {
@@ -69,6 +83,17 @@ describe('Caching', function () {
         body: responseBody,
         response: expectedCachedResponse
       }, 60000);
+      done();
+    });
+  });
+
+  it('caches the stale value if stale-if-error is set', function (done) {
+    staleClient.get(url, function (err) {
+      assert.ifError(err);
+      sinon.assert.calledWith(catbox.set, expectedStaleKey, {
+        body: responseBody,
+        response: expectedCachedResponse
+      }, 7200000);
       done();
     });
   });
@@ -124,6 +149,74 @@ describe('Caching', function () {
           elapsedTime: sinon.match.number
         }
       });
+      done();
+    });
+  });
+
+  it('attempts to serve stale if error received and staleIfError is enabled', function (done) {
+    var cachedResponseBody = {
+      foo: 'baz'
+    };
+    var errorResponseCode = 503;
+    var errorResponseBody = {
+      error: 'An error'
+    };
+    var errorHeaders = {
+      'cache-control': 'max-age=5',
+      'content-type': 'application/json',
+      'www-authenticate': 'Bearer realm="/"'
+    };
+
+    catbox.get.withArgs(expectedStaleKey).yields(null, {
+      item: {
+        body: cachedResponseBody,
+        response: expectedCachedResponse
+      }
+    });
+
+    nock.cleanAll();
+    api.get('/').reply(errorResponseCode, errorResponseBody, errorHeaders);
+
+    staleClient.get(url, function (err, body, res) {
+      assert.ifError(err);
+      assert.deepEqual(body, cachedResponseBody);
+      assert.deepEqual(res, expectedCachedResponse);
+      sinon.assert.notCalled(catbox.set);
+      sinon.assert.calledTwice(catbox.get);
+      done();
+    });
+  });
+
+  it('does not store stale cache if staleIfError is not enabled', function (done) {
+    client.get(url, function (err) {
+      assert.ifError(err);
+      sinon.assert.calledOnce(catbox.set);
+      sinon.assert.calledWith(catbox.set, expectedKey, {
+        body: responseBody,
+        response: expectedCachedResponse
+      }, 60000);
+      done();
+    });
+  });
+
+  it('does not read stale cache if staleIfError is not enabled', function (done) {
+    var errorResponseCode = 503;
+    var errorResponseBody = {
+      error: 'An error'
+    };
+    var errorHeaders = {
+      'cache-control': 'max-age=5',
+      'content-type': 'application/json',
+      'www-authenticate': 'Bearer realm="/"'
+    };
+
+    nock.cleanAll();
+    api.get('/').reply(errorResponseCode, errorResponseBody, errorHeaders);
+    client.get(url, function (err) {
+      assert.ok(err);
+      assert.equal(err.statusCode, 503);
+      sinon.assert.calledOnce(catbox.get);
+      sinon.assert.calledWith(catbox.get, expectedKey);
       done();
     });
   });
@@ -283,6 +376,32 @@ describe('Caching', function () {
     });
   });
 
+  it('stores content for stale duration if staleIfError enabled and max-age value is zero', function (done) {
+    var headers = {
+      'cache-control': 'max-age=0,stale-if-error=7200'
+    };
+    var expectedCachedResponse = {
+      statusCode: 200,
+      headers: {
+        'cache-control': 'max-age=0,stale-if-error=7200',
+        'content-type': 'application/json'
+      },
+      elapsedTime: nockElapsedTime
+    };
+
+    nock.cleanAll();
+    api.get('/').reply(200, responseBody, headers);
+    staleClient.get(url, function (err) {
+      assert.ifError(err);
+      sinon.assert.calledOnce(catbox.set);
+      sinon.assert.calledWith(catbox.set, expectedStaleKey, {
+        body: responseBody,
+        response: expectedCachedResponse
+      }, 7200000);
+      done();
+    });
+  });
+
   it('does not cache the response if the max-age value is invalid', function (done) {
     var headers = {
       'cache-control': 'max-age=invalid'
@@ -293,6 +412,32 @@ describe('Caching', function () {
     client.get(url, function (err) {
       assert.ifError(err);
       sinon.assert.notCalled(catbox.set);
+      done();
+    });
+  });
+
+  it('does not store a stale value if stale-if-error missing', function (done) {
+    var headers = {
+      'cache-control': 'max-age=60'
+    };
+    var expectedCachedResponse = {
+      statusCode: 200,
+      headers: {
+        'cache-control': 'max-age=60',
+        'content-type': 'application/json'
+      },
+      elapsedTime: nockElapsedTime
+    };
+
+    nock.cleanAll();
+    api.get('/').reply(200, responseBody, headers);
+    staleClient.get(url, function (err) {
+      assert.ifError(err);
+      sinon.assert.calledOnce(catbox.set);
+      sinon.assert.calledWith(catbox.set, expectedKey, {
+        body: responseBody,
+        response: expectedCachedResponse
+      }, 60000);
       done();
     });
   });
@@ -412,6 +557,39 @@ describe('Caching', function () {
     client.get(url, function (err) {
       assert.ifError(err);
       sinon.assert.calledWith(stats.increment, 'http.cache.hits');
+      done();
+    });
+  });
+
+  it('increments a counter when a stale response is sent', function (done) {
+    var cachedResponseBody = {
+      foo: 'baz'
+    };
+    var errorResponseCode = 503;
+    var errorResponseBody = {
+      error: 'An error'
+    };
+    var errorHeaders = {
+      'cache-control': 'max-age=5',
+      'content-type': 'application/json',
+      'www-authenticate': 'Bearer realm="/"'
+    };
+
+    catbox.get.withArgs(expectedStaleKey).yields(null, {
+      item: {
+        body: cachedResponseBody,
+        response: expectedCachedResponse
+      }
+    });
+
+    nock.cleanAll();
+    api.get('/').reply(errorResponseCode, errorResponseBody, errorHeaders);
+
+    staleClient.get(url, function (err, body, res) {
+      assert.ifError(err);
+      assert.deepEqual(body, cachedResponseBody);
+      assert.deepEqual(res, expectedCachedResponse);
+      sinon.assert.calledWith(stats.increment, 'http.cache.stale');
       done();
     });
   });
