@@ -40,8 +40,7 @@ describe('Caching', function () {
 
   var expectedStaleKey = {
     segment: 'flashheart:' + require('../package').version,
-    id: url,
-    stale: true
+    id: 'stale:' + url
   };
 
   beforeEach(function () {
