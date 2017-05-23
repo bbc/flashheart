@@ -198,7 +198,7 @@ describe('Caching', function () {
     });
   });
 
-  it('does not store a stale error', (done) => {
+  it('does not store a stale error', function (done) {
     var errorResponseCode = 404;
     var errorResponseBody = {
       error: 'An error'
@@ -267,7 +267,7 @@ describe('Caching', function () {
     });
   });
 
-  it('returns the non-cached error if the stale cache is an error', (done) => {
+  it('returns the non-cached error if the stale cache is an error', function (done) {
     var errorResponseCode = 503;
     var errorResponseBody = {
       error: 'An error'
