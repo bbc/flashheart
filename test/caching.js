@@ -198,6 +198,23 @@ describe('Caching', function () {
     });
   });
 
+  it('does not store a stale error', (done) => {
+    var errorResponseCode = 404;
+    var errorResponseBody = {
+      error: 'An error'
+    };
+
+    nock.cleanAll();
+    api.get('/').reply(errorResponseCode, errorResponseBody, headers);
+
+    staleClient.get(url, function (err) {
+      assert.ok(err);
+      sinon.assert.calledOnce(catbox.set);
+      sinon.assert.calledWith(catbox.set, expectedKey, sinon.match.object, 60000);
+      done();
+    });
+  });
+
   it('does not read stale cache if staleIfError is not enabled', function (done) {
     var errorResponseCode = 503;
     var errorResponseBody = {
@@ -220,7 +237,7 @@ describe('Caching', function () {
     });
   });
 
-  it('returns an error from the cache if it exists', function (done) {
+  it('returns an error from the max-age cache if it exists', function (done) {
     var errorResponseBody = {
       error: 'An error'
     };
@@ -246,6 +263,29 @@ describe('Caching', function () {
       assert.equal(err.statusCode, 503);
       assert.deepEqual(err.body, errorResponseBody);
       assert.deepEqual(err.headers, headers);
+      done();
+    });
+  });
+
+  it('returns the non-cached error if the stale cache is an error', (done) => {
+    var errorResponseCode = 503;
+    var errorResponseBody = {
+      error: 'An error'
+    };
+
+    catbox.get.withArgs(expectedStaleKey).yields(null, {
+      item: {
+        error: 'Dieser Fehler wird nicht ausgegeben!',
+      }
+    });
+
+    nock.cleanAll();
+    api.get('/').reply(errorResponseCode, errorResponseBody, headers);
+
+    staleClient.get(url, function (err) {
+      assert.ok(err);
+      sinon.assert.calledTwice(catbox.get);
+      assert.deepEqual(err.body, errorResponseBody);
       done();
     });
   });
