@@ -92,7 +92,7 @@ describe('Caching', function () {
       sinon.assert.calledWith(catbox.set, expectedStaleKey, {
         body: responseBody,
         response: expectedCachedResponse
-      }, 7200000);
+      }, 7260000);
       done();
     });
   });
@@ -423,6 +423,32 @@ describe('Caching', function () {
       statusCode: 200,
       headers: {
         'cache-control': 'max-age=0,stale-if-error=7200',
+        'content-type': 'application/json'
+      },
+      elapsedTime: nockElapsedTime
+    };
+
+    nock.cleanAll();
+    api.get('/').reply(200, responseBody, headers);
+    staleClient.get(url, function (err) {
+      assert.ifError(err);
+      sinon.assert.calledOnce(catbox.set);
+      sinon.assert.calledWith(catbox.set, expectedStaleKey, {
+        body: responseBody,
+        response: expectedCachedResponse
+      }, 7200000);
+      done();
+    });
+  });
+
+  it('stores content for stale duration if staleIfError enabled and there is no max-age value', function (done) {
+    var headers = {
+      'cache-control': 'stale-if-error=7200'
+    };
+    var expectedCachedResponse = {
+      statusCode: 200,
+      headers: {
+        'cache-control': 'stale-if-error=7200',
         'content-type': 'application/json'
       },
       elapsedTime: nockElapsedTime
