@@ -270,7 +270,7 @@ describe('Rest Client', function () {
     });
 
     it('calls _getStatsName when incrementing', function (done) {
-      let spy = sinon.spy(client, '_getStatsName');
+      var spy = sinon.spy(client, '_getStatsName');
       nock.cleanAll();
       client.get(url, function (err) {
         assert(err);
