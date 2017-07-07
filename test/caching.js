@@ -303,6 +303,24 @@ describe('Caching', function () {
     });
   });
 
+  it('Uses the request name when incrementing the counter', function (done) {
+    client.get(url, {name: 'sheeba'}, function (err) {
+      assert.ifError(err);
+      sinon.assert.calledWith(stats.increment, 'http.sheeba.requests'); 
+      sinon.assert.calledWith(stats.increment, 'http.sheeba.responses.200');
+      done();
+    });
+  });
+
+  it('Uses the request name when incrementing the counter (when the cache fails)', function (done) {
+    catbox.set.yields(new Error('Good use of Sheeba!'));
+    client.get(url, {name: 'sheeba'}, function (err) {
+      assert.ifError(err);
+      sinon.assert.calledWith(stats.increment, 'http.sheeba.cache.errors');
+      done();
+    });
+  });
+
   it('returns the response when writing to the cache fails', function (done) {
     catbox.set.withArgs(expectedKey).returns(new Error('Good use of Sheeba!'));
     client.get(url, function (err, body) {

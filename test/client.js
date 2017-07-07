@@ -269,6 +269,16 @@ describe('Rest Client', function () {
       });
     });
 
+    it('calls _getStatsName when incrementing', function (done) {
+      var spy = sinon.spy(client, '_getStatsName');
+      nock.cleanAll();
+      client.get(url, function (err) {
+        assert(err);
+        sinon.assert.called(spy);
+        done();
+      });
+    });
+
     it('increments a counter for errors with feed name in it', function (done) {
       var client = Client.createClient({
         name: 'my_client',
