@@ -142,6 +142,8 @@ The following metrics are sent from each client:
 |`{name}.responses.{code}`|Counter|Incremented every time a response is received|
 |`{name}.request_errors`|Counter|Incremented every time a request fails (timeout, DNS lookup fails etc.)|
 |`{name}.response_time`|Timer|Measures of the response time in milliseconds across all requests|
+|`{name}.retries`|Counter|Incremented every time the request retries|
+|`{name}.attempts`|Timer|Measures the number of attempts|
 |`{name}.cache.hits`|Counter|Incremented for each cache hit|
 |`{name}.cache.misses`|Counter|Incremented for each cache miss|
 |`{name}.cache.errors`|Counter|Incremented whenever there's is a problem communicating with the cache|
