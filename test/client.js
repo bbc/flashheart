@@ -114,7 +114,7 @@ describe('Rest Client', function () {
   it('can be created asynschronously without cache', function () {
     var clientPromise = Client.createClientAsync();
 
-    return clientPromise.then(() => {
+    return clientPromise.then(function () {
       assert.ok(client);  
     });
   });
