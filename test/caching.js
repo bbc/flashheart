@@ -106,7 +106,6 @@ describe('Caching', function () {
         done();
       });
     });
-
   });
 
   it('caches the stale value if stale-if-error is set', function (done) {
