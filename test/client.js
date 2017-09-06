@@ -111,6 +111,14 @@ describe('Rest Client', function () {
     });
   });
 
+  it('can be created aynscronously without cache', function () {
+    var clientPromise = Client.createClientAsync();
+
+    return clientPromise.then(() => {
+      assert.ok(client);  
+    });
+  });
+
   describe('.get', function () {
     it('returns body of a JSON response', function (done) {
       client.get(url, function (err, body) {
