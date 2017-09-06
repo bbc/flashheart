@@ -111,6 +111,18 @@ const client = require('flashheart').createClient({
 });
 ```
 
+If using a Redis client, you may need to allow the client time to connect to your Redis instance before attempting to request. For this reason, you can create the client asynchronously and return a promise which you can resolve with the connected client:
+
+```js
+const clientPromise = require('flashheart').createClientAsync({
+  cache: storage
+});
+
+clientPromise.then(function(client) {
+  client.get(url);
+})
+```
+
 ### Logging
 
 All requests can be logged at `info` level if you provide a logger that supports the standard logging API (like `console` or [Winston](https://github.com/flatiron/winston))

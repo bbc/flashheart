@@ -27,6 +27,7 @@ describe('Caching', function () {
   var logger;
   var client;
   var staleClient;
+  var clientPromise;
   var catbox;
 
   var headers = {
@@ -49,7 +50,9 @@ describe('Caching', function () {
     catbox = {
       set: sandbox.stub(),
       get: sandbox.stub(),
-      start: sandbox.stub()
+      start: function(callback) {
+        callback();
+      }
     };
     stats = {
       increment: sandbox.stub(),
@@ -73,6 +76,12 @@ describe('Caching', function () {
       retries: 0,
       staleIfError: true
     });
+    clientPromise = Client.createClientAsync({
+      cache: catbox,
+      stats: stats,
+      logger: logger,
+      retries: 0
+    });
   });
 
   it('caches the body and the response based on its max-age header', function (done) {
@@ -83,6 +92,19 @@ describe('Caching', function () {
         response: expectedCachedResponse
       }, 60000);
       done();
+    });
+  });
+
+  it('caches the body and the response using the async client', function (done) {
+    clientPromise.then(function(client) {
+      client.get(url, function (err) {
+        assert.ifError(err);
+        sinon.assert.calledWith(catbox.set, expectedKey, {
+          body: responseBody,
+          response: expectedCachedResponse
+        }, 60000);
+        done();
+      });
     });
   });
 
