@@ -60,6 +60,7 @@ describe('Caching', function () {
       warn: sandbox.stub()
     };
     catbox.get.yields(null);
+    catbox.start.yields(null);
     client = Client.createClient({
       cache: catbox,
       stats: stats,
@@ -82,6 +83,37 @@ describe('Caching', function () {
         body: responseBody,
         response: expectedCachedResponse
       }, 60000);
+      done();
+    });
+  });
+
+  it('caches the body and the response using client created asynchronously', function (done) {
+    Client.createClientAsync({
+      cache: catbox,
+      stats: stats,
+      logger: logger,
+      retries: 0
+    }, function(err, client) {
+      client.get(url, function (err) {
+        assert.ifError(err);
+        sinon.assert.calledWith(catbox.set, expectedKey, {
+          body: responseBody,
+          response: expectedCachedResponse
+        }, 60000);
+        done();
+      });
+    });
+  });
+
+  it('passes error back if starting the cache fails when creating aysnchronously', function(done) {
+    catbox.start.yields(new Error('An error'));
+    Client.createClientAsync({
+      cache: catbox,
+      stats: stats,
+      logger: logger,
+      retries: 0
+    }, function(err) {
+      assert.ok(err);
       done();
     });
   });

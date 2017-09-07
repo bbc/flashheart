@@ -111,6 +111,16 @@ const client = require('flashheart').createClient({
 });
 ```
 
+When using a cache client that connects to a Redis instance, it is sometimes required to ensure the connection to the Redis instance has completed before making a request. To ensure this is the case, you can create the client asynchronously:
+
+```js
+const client = require('flashheart').createClientAsync({
+  cache: storage
+}, function(error, client) {
+  // Check for errors and use the client as needed
+});
+```
+
 ### Logging
 
 All requests can be logged at `info` level if you provide a logger that supports the standard logging API (like `console` or [Winston](https://github.com/flatiron/winston))
