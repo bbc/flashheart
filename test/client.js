@@ -58,6 +58,14 @@ describe('Rest Client', function () {
     assert.ok(client);
   });
 
+  it('can be created asynchronously without any options', function (done) {
+    Client.createClientAsync(null , function(err, client) {
+      assert.ifError(err);
+      assert.ok(client);
+      done();      
+    });
+  });
+
   it('can append default options to the existing request client', function (done) {
     var client = Client.createClient({
       defaults: {
