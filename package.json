@@ -1,7 +1,8 @@
 {
   "name": "flashheart",
   "version": "2.9.0",
-  "description": "A fully-featured REST client built for ease-of-use and resilience",
+  "description":
+    "A fully-featured REST client built for ease-of-use and resilience",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
@@ -24,7 +25,6 @@
     "json",
     "client"
   ],
-  "author": "ibl-team@lists.forge.bbc.co.uk",
   "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/bbc/flashheart/issues"
