@@ -1,7 +1,5 @@
 # flashheart
 
-<br/><p align="center"><img width="350" src="https://rawgit.com/bbc/flashheart/master/logo.png?a" alt="Flashheart"></p><br/>
-
 [![Build Status](https://travis-ci.org/bbc/flashheart.svg?branch=master)](https://travis-ci.org/bbc/flashheart) [![Code Climate](https://codeclimate.com/github/bbc/flashheart/badges/gpa.svg)](https://codeclimate.com/github/bbc/flashheart) [![Test Coverage](https://codeclimate.com/github/bbc/flashheart/badges/coverage.svg)](https://codeclimate.com/github/bbc/flashheart/coverage)
 
 > A fully-featured Node.js REST client built for ease-of-use and resilience
@@ -339,9 +337,3 @@ Creates a new client.
 * `url` - The URL to be requested
 * `opts` - _optional_ - A set of options. All of the [request options](https://github.com/request/request#requestoptions-callback) are supported
 * `callback` - A function called with the [callback return values](https://github.com/bbc/flashheart#callback-return-values)
-
-## Why Flashheart?
-
-[Lord Flashheart](http://blackadder.wikia.com/wiki/Lord_Flashheart) is [Blackadder](https://en.wikipedia.org/wiki/Blackadder)'s trusted friend, and a massive show-off.
-
-[![Flashheart](http://img.youtube.com/vi/aKfbSHW9uGA/0.jpg)](http://www.youtube.com/watch?v=aKfbSHW9uGA)
