@@ -1,8 +1,7 @@
 {
   "name": "flashheart",
   "version": "2.9.0",
-  "description":
-    "A fully-featured REST client built for ease-of-use and resilience",
+  "description": "A fully-featured REST client built for ease-of-use and resilience",
   "main": "index.js",
   "scripts": {
     "test": "mocha",
