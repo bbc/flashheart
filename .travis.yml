@@ -7,6 +7,11 @@ node_js:
 addons:
   code_climate:
     repo_token: 045235ceee8f5d1f49cc4a388e956804094a2589048ccf4854d9fe4008de498d
-after_script:
+before_script:
+  - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+  - chmod +x ./cc-test-reporter
+  - ./cc-test-reporter before-build
+script:
   - npm run coverage
-  - cat coverage/lcov.info | node_modules/.bin/codeclimate-test-reporter
+after_script:
+  - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
