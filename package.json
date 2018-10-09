@@ -4,9 +4,9 @@
   "description": "A fully-featured REST client built for ease-of-use and resilience",
   "main": "index.js",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha --exit",
     "lint": "jshint .",
-    "coverage": "istanbul cover _mocha -- -R dot",
+    "coverage": "nyc mocha --exit",
     "posttest": "npm run lint"
   },
   "repository": {
@@ -32,11 +32,10 @@
   "devDependencies": {
     "async": "^2.0.0",
     "chai": "^3.2.0",
-    "codeclimate-test-reporter": "^0.4.0",
-    "istanbul": "^0.4.2",
-    "jshint": "^2.8.0",
-    "mocha": "^3.0.2",
+    "jshint": "^2.9.6",
+    "mocha": "^5.2.0",
     "nock": "^9.0.4",
+    "nyc": "^13.0.1",
     "sinon": "^1.15.3"
   },
   "jshintConfig": {
@@ -57,10 +56,10 @@
   "dependencies": {
     "debug": "^2.2.0",
     "levee": "^1.2.0",
-    "lodash": "^4.2.0",
-    "request": "2.78.0",
+    "lodash": "^4.17.11",
+    "request": "^2.88.0",
     "retry": "^0.10.0",
     "simple-rate-limiter": "^0.2.3",
-    "wreck": "^5.6.0"
+    "wreck": "^14.1.0"
   }
 }
