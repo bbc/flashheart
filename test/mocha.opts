@@ -1,0 +1,6 @@
+--exit
+--recursive
+--require ts-node/register
+--full-trace
+--timeout 5000
+test/**/**/*.ts
