@@ -29,7 +29,7 @@ const redisClient = redis.createClient();
 const { promisify } = require('util');
 const getKeys = promisify(redisClient.keys).bind(redisClient);
 
-describe('Caching integration', () => {
+describe.skip('Caching integration', () => {
   beforeEach(() => {
     nock.disableNetConnect();
     nock.cleanAll();
