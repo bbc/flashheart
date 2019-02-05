@@ -1,5 +1,6 @@
 import { assert } from 'chai';
 import * as nock from 'nock';
+import * as request from 'request';
 import * as sinon from 'sinon';
 import * as restClient from '../src';
 import { Stats } from '../src/core/clientParams';
@@ -124,6 +125,23 @@ describe('Flashheart', () => {
 
       assert.equal(response.status, 200);
       return assert.deepEqual(response.body, { foo: 'bar' });
+    });
+  });
+
+  describe('overriding the http client', () => {
+    it.only('executes a HTTP GET request using a custom http client', async () => {
+      nock(host, { reqheaders: { myToken: 'token' } })
+        .get('/')
+        .reply(200, { foo: 'bar' });
+
+      const client = restClient.createClient({
+        name: 'testing',
+        httpClient: request.defaults({
+          headers: { myToken: 'token' }
+        })
+      });
+      const response = await client.get(host);
+      assert.deepEqual(response.body, { foo: 'bar' });
     });
   });
 

@@ -60,4 +60,5 @@ export interface ClientParams {
   circuitbreaker?: CircuitBreakerConfiguration;
   memoryCache?: InMemoryCacheConfiguration;
   externalCache?: ExternalCacheConfiguration;
+  httpClient?: any;
 }
