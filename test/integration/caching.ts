@@ -25,15 +25,19 @@ const multiLayeredCacheParams = {
   externalCache: { host: 'localhost', port: 6379 }
 };
 
-const redisClient = redis.createClient();
+// const redisClient = redis.createClient();
 const { promisify } = require('util');
-const getKeys = promisify(redisClient.keys).bind(redisClient);
+// const getKeys = promisify(redisClient.keys).bind(redisClient);
+
+async function getKeys(s: any): Promise<any> {
+
+}
 
 describe.skip('Caching integration', () => {
   beforeEach(() => {
     nock.disableNetConnect();
     nock.cleanAll();
-    redisClient.flushdb();
+    // redisClient.flushdb();
   });
 
   after(() => {
@@ -223,7 +227,7 @@ describe.skip('Caching integration', () => {
       const client = createClient(multiLayeredCacheParams);
       await client.get(`${host}/path`, requestOptions);
 
-      redisClient.flushall(); // ensure no external cache entry
+      // redisClient.flushall(); // ensure no external cache entry
 
       const fromMemoryCache = await client.get(`${host}/path`, requestOptions);
       assert.deepEqual(fromMemoryCache.body, { x: 1 });
