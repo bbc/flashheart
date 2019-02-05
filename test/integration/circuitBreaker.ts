@@ -29,7 +29,7 @@ function generateFailingCalls(client: RestClient, method: string = 'get', host: 
   };
 }
 
-describe('Circuit breaker integration', () => {
+describe.skip('Circuit breaker integration', () => {
   let fakeServer;
 
   beforeEach((done) => {
