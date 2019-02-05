@@ -43,10 +43,6 @@ export interface InMemoryCacheConfiguration {
   maxSize?: number;
 }
 
-export interface TLSConfiguration {
-  disabled?: boolean;
-}
-
 export interface Stats {
   increment(metric: string, value?: number, sampleRate?: number): void;
   timing(metric: string, duration: number): void;
@@ -64,5 +60,4 @@ export interface ClientParams {
   circuitbreaker?: CircuitBreakerConfiguration;
   memoryCache?: InMemoryCacheConfiguration;
   externalCache?: ExternalCacheConfiguration;
-  tls?: TLSConfiguration;
 }
