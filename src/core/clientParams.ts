@@ -1,3 +1,6 @@
+import * as request from 'request';
+
+type RequestClient = request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
 export interface CircuitBreakerConfiguration {
   maxFailures: number;
   resetTimeout?: number;
@@ -50,5 +53,5 @@ export interface ClientParams {
   circuitbreaker?: CircuitBreakerConfiguration;
   memoryCache?: InMemoryCacheConfiguration;
   externalCache?: ExternalCacheConfiguration;
-  httpClient?: any;
+  httpClient?: RequestClient;
 }
