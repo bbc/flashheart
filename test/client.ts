@@ -128,8 +128,8 @@ describe('Flashheart', () => {
     });
   });
 
-  describe('overriding the http client', () => {
-    it.only('executes a HTTP GET request using a custom http client', async () => {
+  describe('Custom configuration', () => {
+    it('executes a HTTP GET request using a custom http client', async () => {
       nock(host, { reqheaders: { myToken: 'token' } })
         .get('/')
         .reply(200, { foo: 'bar' });
@@ -137,11 +137,12 @@ describe('Flashheart', () => {
       const client = restClient.createClient({
         name: 'testing',
         httpClient: request.defaults({
+          json: true,
           headers: { myToken: 'token' }
         })
       });
       const response = await client.get(host);
-      assert.deepEqual(response.body, { foo: 'bar' });
+      return assert.deepEqual(response.body, { foo: 'bar' });
     });
   });
 
