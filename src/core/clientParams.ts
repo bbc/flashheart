@@ -24,22 +24,10 @@ export interface CollapsingConfiguration {
   window: number;
 }
 
-export interface ExternalCacheHostConfiguration {
-  host?: string;
-  port?: number;
-  cluster?: boolean;
+export interface ExternalCacheConfiguration {
   timeout?: number;
-  storage?: any;
+  storage: any;
 }
-
-export interface ExternalCacheStringConfiguration {
-  connectionString: string;
-  cluster?: boolean;
-  timeout?: number;
-  storage?: any;
-}
-
-export type ExternalCacheConfiguration = ExternalCacheHostConfiguration | ExternalCacheStringConfiguration;
 
 export interface InMemoryCacheConfiguration {
   maxSize?: number;
