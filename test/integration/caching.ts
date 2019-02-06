@@ -1,8 +1,8 @@
-import * as redis from '@ibl/fakeredis';
 import * as Catbox from 'catbox';
 import * as Memory from 'catbox-memory';
 import { assert } from 'chai';
 import * as nock from 'nock';
+import * as redis from 'redis';
 import * as sinon from 'sinon';
 import { createClient } from '../../src';
 import * as memoryCache from '../../src/caching/memory';
