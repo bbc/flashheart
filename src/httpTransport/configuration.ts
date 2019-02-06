@@ -121,7 +121,11 @@ function configureRequest(params: ClientParams): RequestClient {
 }
 
 function configureCollapsing(builder: any, params: ClientParams): void {
-  builder.use(collapsing.middleware({ eventName: params.name, collapsingWindow: params.collapsing.window }));
+  builder.use(collapsing.middleware({
+    eventName: params.name,
+    collapsingWindow: params.collapsing.window
+  }));
+
   if (params.stats) {
     collapsing.events.on(`collapsed-${params.name}`, () => {
       params.stats.increment(`${params.name}.collapsing.collapsed`);

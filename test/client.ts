@@ -6,7 +6,6 @@ import * as restClient from '../src';
 import { Stats } from '../src/core/clientParams';
 
 const host = 'https://example.api.co.uk';
-const path = '/';
 const sandbox = sinon.createSandbox();
 
 describe('Flashheart', () => {
@@ -45,7 +44,7 @@ describe('Flashheart', () => {
       };
 
       const client = restClient.createClient({ stats: statsStub });
-      const response = await client.get(host);
+      await client.get(host);
       const [clientName] = incrementStub.getCalls()[0].args[0].split('.');
 
       return assert.equal(clientName, 'flashheart');
@@ -63,7 +62,7 @@ describe('Flashheart', () => {
       };
 
       const client = restClient.createClient({ name: 'testing', stats: statsStub });
-      const response = await client.get(host);
+      await client.get(host);
       const [clientName] = incrementStub.getCalls()[0].args[0].split('.');
 
       return assert.equal(clientName, 'testing');

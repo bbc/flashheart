@@ -44,7 +44,6 @@
     "@types/sinon": "^7.0.3",
     "babel-eslint": "^8.2.2",
     "chai": "^4.1.2",
-    "consumer-contracts": "^3.0.1",
     "eslint": "^4.19.1",
     "eslint-config-iplayer-base": "^1.0.0",
     "express": "^4.16.3",
@@ -68,11 +67,8 @@
     "@bbc/http-transport-to-error": "^2.0.1",
     "catbox": "^10.0.3",
     "catbox-memory": "^3.1.2",
-    "catbox-redis": "^4.2.1",
-    "ioredis": "^4.0.0",
     "levee": "^1.4.0",
     "lodash": "^4.17.10",
-    "redis": "^2.8.0",
     "request": "^2.88.0"
   },
   "nyc": {
