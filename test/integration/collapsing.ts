@@ -4,7 +4,7 @@ import { createClient } from '../../src';
 const host = 'http://localhost:5555';
 const requestOptions = { headers: { body: { x: 1 } } };
 
-describe.skip('Request collasping', () => {
+describe('Request collasping', () => {
   beforeEach(() => {
     nock.disableNetConnect();
     nock.cleanAll();

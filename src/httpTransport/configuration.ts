@@ -5,7 +5,6 @@ import * as stats from '@bbc/http-transport-statsd';
 import * as toError from '@bbc/http-transport-to-error';
 import * as _ from 'lodash';
 import * as request from 'request';
-import * as externalCache from '../caching/external';
 import * as memoryCache from '../caching/memory';
 import { ClientParams, Stats } from '../core/clientParams';
 
@@ -92,7 +91,7 @@ function configureStatsEvents(params: StatsEventsOpts): void {
 }
 
 function configureExternalCache(builder: any, params: ClientParams): void {
-  const cache = externalCache.createCache(params);
+  const storage = params.externalCache.storage;
   const cacheOpts: any = {
     name: params.name
   };
@@ -102,8 +101,8 @@ function configureExternalCache(builder: any, params: ClientParams): void {
     cacheOpts.ignoreCacheErrors = true;
   }
 
-  builder.use(maxAge(cache, cacheOpts));
-  builder.use(staleIfError(cache, cacheOpts));
+  builder.use(maxAge(storage, cacheOpts));
+  builder.use(staleIfError(storage, cacheOpts));
 
   configureStatsEvents({
     client: params.stats,

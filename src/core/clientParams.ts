@@ -25,16 +25,18 @@ export interface CollapsingConfiguration {
 }
 
 export interface ExternalCacheHostConfiguration {
-  host: string;
-  port: number;
+  host?: string;
+  port?: number;
   cluster?: boolean;
   timeout?: number;
+  storage?: any;
 }
 
 export interface ExternalCacheStringConfiguration {
   connectionString: string;
   cluster?: boolean;
   timeout?: number;
+  storage?: any;
 }
 
 export type ExternalCacheConfiguration = ExternalCacheHostConfiguration | ExternalCacheStringConfiguration;
