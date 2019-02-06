@@ -36,6 +36,7 @@
     "url": "https://github.com/bbc/flashheart/issues"
   },
   "devDependencies": {
+    "@ibl/fakeredis": "^3.0.0",
     "@types/chai": "^4.1.4",
     "@types/lodash": "^4.14.119",
     "@types/mocha": "^2.2.43",

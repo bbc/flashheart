@@ -1,8 +1,8 @@
+import * as redis from '@ibl/fakeredis';
 import * as Catbox from 'catbox';
 import * as Memory from 'catbox-memory';
 import { assert } from 'chai';
 import * as nock from 'nock';
-import * as redis from 'redis';
 import * as sinon from 'sinon';
 import { createClient } from '../../src';
 import * as memoryCache from '../../src/caching/memory';
@@ -28,10 +28,6 @@ const multiLayeredCacheParams = {
 // const redisClient = redis.createClient();
 const { promisify } = require('util');
 // const getKeys = promisify(redisClient.keys).bind(redisClient);
-
-async function getKeys(s: any): Promise<any> {
-
-}
 
 describe.skip('Caching integration', () => {
   beforeEach(() => {
@@ -163,9 +159,9 @@ describe.skip('Caching integration', () => {
       const client = createClient(externalCacheParams);
       await client.get('https://example.api.co.uk/episodes');
 
-      const keys = await getKeys('*');
-      assert.equal(keys.length, 1);
-      assert.match(keys[0], /rest_client:http-transport.*body:GET%3Ahttps%3A%2F%2Fexample.api.co.uk%2Fepisodes/);
+      // const keys = await getKeys('*');
+      // assert.equal(keys.length, 1);
+      // assert.match(keys[0], /rest_client:http-transport.*body:GET%3Ahttps%3A%2F%2Fexample.api.co.uk%2Fepisodes/);
     });
 
     it('generates a valid cache key using query strings', async () => {
@@ -177,9 +173,9 @@ describe.skip('Caching integration', () => {
       const client = createClient(externalCacheParams);
       await client.get('https://example.api.co.uk/episodes?fast-mode=true');
 
-      const keys = await getKeys('*');
-      assert.equal(keys.length, 1);
-      assert.match(keys[0], /rest_client:http-transport.*body:GET%3Ahttps%3A%2F%2Fexample.api.co.uk%2Fepisodes%3Ffast-mode%3Dtrue/);
+      // const keys = await getKeys('*');
+      // assert.equal(keys.length, 1);
+      // assert.match(keys[0], /rest_client:http-transport.*body:GET%3Ahttps%3A%2F%2Fexample.api.co.uk%2Fepisodes%3Ffast-mode%3Dtrue/);
     });
 
     it('supports connection strings', async () => {
@@ -227,7 +223,7 @@ describe.skip('Caching integration', () => {
       const client = createClient(multiLayeredCacheParams);
       await client.get(`${host}/path`, requestOptions);
 
-      // redisClient.flushall(); // ensure no external cache entry
+      // redisClient.flushdb(); // ensure no external cache entry
 
       const fromMemoryCache = await client.get(`${host}/path`, requestOptions);
       assert.deepEqual(fromMemoryCache.body, { x: 1 });
