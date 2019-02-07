@@ -112,12 +112,12 @@ function configureExternalCache(builder: any, params: ClientParams): void {
   });
 }
 
-function configureRequest(params: ClientParams): RequestClient {
+function configureRequest(params: ClientParams): httpTransport.defaultTransport {
   if (params.httpClient) {
     return params.httpClient;
   }
   const defaults = Object.assign({}, defaultRequestOptions);
-  return request.defaults(defaults);
+  return new httpTransport.defaultTransport(request.defaults(defaults));
 }
 
 function configureCollapsing(builder: any, params: ClientParams): void {
@@ -134,7 +134,7 @@ function configureCollapsing(builder: any, params: ClientParams): void {
 }
 
 export function configureClient(params: ClientParams): httpTransport.HttpTransportClient {
-  const transport = new httpTransport.defaultTransport(configureRequest(params));
+  const transport = configureRequest(params);
   const builder = httpTransport
     .createBuilder(transport)
     .retries(getRetries(params))

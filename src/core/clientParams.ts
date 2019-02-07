@@ -1,5 +1,7 @@
 import * as request from 'request';
 
+import { defaultTransport } from '@bbc/http-transport';
+
 type RequestClient = request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
 export interface CircuitBreakerConfiguration {
   maxFailures: number;
@@ -53,5 +55,5 @@ export interface ClientParams {
   circuitbreaker?: CircuitBreakerConfiguration;
   memoryCache?: InMemoryCacheConfiguration;
   externalCache?: ExternalCacheConfiguration;
-  httpClient?: RequestClient;
+  httpClient?: defaultTransport;
 }

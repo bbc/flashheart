@@ -1,3 +1,4 @@
+import { defaultTransport } from '@bbc/http-transport';
 import { assert } from 'chai';
 import * as nock from 'nock';
 import * as request from 'request';
@@ -133,12 +134,13 @@ describe('Flashheart', () => {
         .get('/')
         .reply(200, { foo: 'bar' });
 
+      const customRequest = request.defaults({
+        json: true,
+        headers: { myToken: 'token' }
+      });
       const client = restClient.createClient({
         name: 'testing',
-        httpClient: request.defaults({
-          json: true,
-          headers: { myToken: 'token' }
-        })
+        httpClient: new defaultTransport(customRequest)
       });
       const response = await client.get(host);
       return assert.deepEqual(response.body, { foo: 'bar' });
