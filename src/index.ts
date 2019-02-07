@@ -1,3 +1,4 @@
+import { RequestTransport } from '@bbc/http-transport';
 import * as _ from 'lodash';
 import { CircuitBreaker } from './circuitBreaker/circuitBreaker';
 import { ClientParams } from './core/clientParams';
@@ -17,3 +18,4 @@ export function createClient(params?: ClientParams): RestClient {
 
 export { ClientParams } from './core/clientParams';
 export { RestClient } from './core/restClient';
+export { RequestTransport };
