@@ -1,4 +1,4 @@
-# RestClient
+# Flasheart
 
 >  A fully-featured REST client built for ease-of-use and resilience
 
@@ -11,7 +11,6 @@
 * [Logging](#logging)
 * [Parses JSON responses](#json)
 * [Understands HTTP errors](#errors)
-* [Rate Limiting](#rate-limiting)
 * [StatsD integration](#stats)
 
 
@@ -36,7 +35,7 @@ For example to trip after 200 failures and try to reset after 30 seconds:
 
 ### Caching
 
-The client will optionally cache response with a `max-age` directive. You can specify the caching storage with an instance of [Catbox](https://github.com/hapijs/catbox) using the `cache` parameter.
+If caching is enabled, the client will cache response with a `max-age` directive. You can specify the caching storage with an instance of [Catbox](https://github.com/hapijs/catbox) using the `cache` parameter.
 
 ```js
 const Catbox = require('catbox').Client;
@@ -45,31 +44,102 @@ const storage = new Catbox(new Memory());
 const flashheart = require('flashheart')
 
 const client = flashheart.createClient({
-  cache: storage
+   name: 'my-client',
+   externalCache: {
+     cache: storage
+   }
 });
 ```
 
-Optionally, you can enable `staleIfError` which will also start listening to the `stale-if-error` directive. This stores the response for the duration of the `stale-if-error` directive as well as the `max-age` and will try to retrieve them in this order:
+The `staleIfError` directive is also supported. If a response has a `staleIfError` directive, the response will be cached for the duration of the `stale-if-error` directive as well as the `max-age` and will try to retrieve them in this order:
 
-* `max-age` stored version
-* fresh version
-* `stale-if-error` version
+* `max-age` stored version fresh version
+* `stale-if-error` stale version
 
-This is enabled simply by passing in the `staleIfError` parameter to `createClient`:
+### Retries
+
+By default the client retries failed requests once, with a delay of 100 milliseconds between attempts. The number of times to retry and the delay between retries can be configured using the `retries` and `retryDelay` properties.
+
+For example, to retry 10 times, with a delay of 500ms:
 
 ```js
-const flashheart = require('flashheart')
+ const restClient = require('flashheart');
+ const StatsD = require('node-statsd');
+
+ const client = restClient.createClient({
+    name: 'my-client',
+    retries: 10,
+    retryDelay: 500
+  })
+
+Default retries can be overridden using method options:
+```js
+client.get(url, {
+  retries: 5,
+  retryTimeout: 250
+}, done);
+```
+
+Only request errors or server errors result in a retry; `4XX` errors are _not_ retried.
+
+### Timeout
+
+The client has a default timeout of _2 seconds_. You can override this when creating a client by setting the `timeout` property.
+
+```js
+const flashheart = require('flashheart');
 
 const client = flashheart.createClient({
-  cache: storage
+  timeout: 50
 });
 ```
 
-The cache varies on _all_ request options (and therefore, headers) by default. If you don't want to vary on a particular header, use the `doNotVary` option:
+### Logging
+
+All requests can be logged at `info` level if you provide a logger that supports the standard logging API (like `console` or [Winston](https://github.com/flatiron/winston))
 
 ```js
-const client = require('flashheart').createClient({
-  cache: storage,
-  doNotVary: ['Request-Id']
+const flashheart = require('flashheart');
+
+const client = flashheart.createClient({
+  logger: console
 });
 ```
+
+### JSON
+
+The client assumes you're working with a JSON API by default. It uses the `json: true` option in request (default client) to send the `Accept: application/json` header and automatically parse the response into an object. If you need to call an API that returns plain text, XML, animated GIFs etc. then set the `json` flag to `false` in your request options.
+
+### Errors
+
+Any response with a status code greater than or equal to `400` results in an error. There's no need to manually check the status code of the response. The status code is exposed as `err.statusCode` and the headers are assigned to `err.headers`. 
+
+### Stats
+
+Metrics can be sent to [StatsD](https://github.com/etsy/statsd/) by providing an instance of the [node-statsd](https://github.com/sivy/node-statsd) client:
+
+```js
+const StatsD = require('node-statsd');
+const stats = new StatsD();
+const flashheart = require('flashheart');
+
+const client = flashheart.createClient({
+  stats: stats
+});
+```
+
+The following metrics are sent from each client:
+
+|Name|Type|Description|
+|----|----|-----------|
+|`{name}.requests`|Counter|Incremented every time a request is made|
+|`{name}.responses.{code}`|Counter|Incremented every time a response is received|
+|`{name}.request_errors`|Counter|Incremented every time a request fails (timeout, DNS lookup fails etc.)|
+|`{name}.response_time`|Timer|Measures of the response time in milliseconds across all requests|
+|`{name}.retries`|Counter|Incremented every time the request retries|
+|`{name}.attempts`|Timer|Measures the number of attempts|
+|`{name}.cache.hits`|Counter|Incremented for each cache hit|
+|`{name}.cache.misses`|Counter|Incremented for each cache miss|
+|`{name}.cache.errors`|Counter|Incremented whenever there's is a problem communicating with the cache|
+
+The `{name}` variable comes from the `name` option you pass to `createClient`. It defaults to `http` if you don't name your client.
