@@ -70,14 +70,7 @@ For example, to retry 10 times, with a delay of 500ms:
     name: 'my-client',
     retries: 10,
     retryDelay: 500
-  })
-
-Default retries can be overridden using method options:
-```js
-client.get(url, {
-  retries: 5,
-  retryTimeout: 250
-}, done);
+  });
 ```
 
 Only request errors or server errors result in a retry; `4XX` errors are _not_ retried.
