@@ -34,7 +34,7 @@ function createParamsWithMultiCache(): any {
     name: 'testing',
     memoryCache: { maxSize: 1000 },
     externalCache: {
-      storage: new Catbox.Client(new Memory())
+      cache: new Catbox.Client(new Memory())
     }
   };
 }
@@ -44,7 +44,7 @@ function createParamsWithStubbedCache(): ClientParams {
     name: 'testing',
     memoryCache: { maxSize: 1000 },
     externalCache: {
-      storage: createStubbedCatbox()
+      cache: createStubbedCatbox()
     }
   };
 }
@@ -53,7 +53,7 @@ function createParamsWithExternalCache(): ClientParams {
   return {
     name: 'testing',
     externalCache: {
-      storage: new Catbox.Client(new Memory())
+      cache: new Catbox.Client(new Memory())
     }
   };
 }
@@ -165,7 +165,7 @@ describe('Caching integration', () => {
       const clientParams = {
         name: 'testing',
         externalCache: {
-          storage: catbox
+          cache: catbox
         }
       };
       nock.cleanAll();
@@ -188,7 +188,7 @@ describe('Caching integration', () => {
       const clientParams = {
         name: 'testing',
         externalCache: {
-          storage: catbox
+          cache: catbox
         }
       };
       nock.cleanAll();
@@ -238,7 +238,7 @@ describe('Caching integration', () => {
         .reply(200, expectedResponse, responseHeaders);
 
       const params = createParamsWithStubbedCache();
-      const catbox = params.externalCache.storage;
+      const catbox = params.externalCache.cache;
       const client = createClient(params);
       await client.get(`${host}/path`, requestOptions);
 

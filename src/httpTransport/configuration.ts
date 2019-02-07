@@ -91,7 +91,7 @@ function configureStatsEvents(params: StatsEventsOpts): void {
 }
 
 function configureExternalCache(builder: any, params: ClientParams): void {
-  const storage = params.externalCache.storage;
+  const cache = params.externalCache.cache;
   const cacheOpts: any = {
     name: params.name
   };
@@ -101,8 +101,8 @@ function configureExternalCache(builder: any, params: ClientParams): void {
     cacheOpts.ignoreCacheErrors = true;
   }
 
-  builder.use(maxAge(storage, cacheOpts));
-  builder.use(staleIfError(storage, cacheOpts));
+  builder.use(maxAge(cache, cacheOpts));
+  builder.use(staleIfError(cache, cacheOpts));
 
   configureStatsEvents({
     client: params.stats,

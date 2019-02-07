@@ -31,7 +31,7 @@ export interface CollapsingConfiguration {
 
 export interface ExternalCacheConfiguration {
   timeout?: number;
-  storage: any;
+  cache: any;
 }
 
 export interface InMemoryCacheConfiguration {
