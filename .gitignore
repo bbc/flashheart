@@ -6,3 +6,4 @@ dist/
 docconfig/
 .idea
 docs/
+.nyc_output
