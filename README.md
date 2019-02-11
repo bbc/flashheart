@@ -2,6 +2,7 @@
 
 <br/><p align="center"><img width="350" src="https://rawgit.com/bbc/flashheart/master/logo.png?a" alt="Flashheart"></p><br/>
 
+[![NPM downloads](https://img.shields.io/npm/dm/flashheart.svg?style=flat)](https://npmjs.org/package/flashheart)
 [![Build Status](https://travis-ci.org/bbc/flashheart.svg?branch=master)](https://travis-ci.org/bbc/flashheart) 
 [![Code Climate](https://codeclimate.com/github/bbc/flashheart/badges/gpa.svg)](https://codeclimate.com/github/bbc/flashheart) 
 [![Test Coverage](https://codeclimate.com/github/bbc/flashheart/badges/coverage.svg)](https://codeclimate.com/github/bbc/flashheart/coverage)
