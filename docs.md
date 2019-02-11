@@ -1,4 +1,4 @@
-# Flasheart
+# Flashheart
 
 >  A fully-featured REST client built for ease-of-use and resilience
 

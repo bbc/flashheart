@@ -67,7 +67,7 @@
     "@bbc/http-transport-to-error": "^2.0.1",
     "catbox": "^10.0.3",
     "catbox-memory": "^3.1.2",
-    "levee": "^1.4.0",
+    "@bbc/http-transport-circuit-breaker": "^1.2.0",
     "lodash": "^4.17.10",
     "request": "^2.88.0"
   },

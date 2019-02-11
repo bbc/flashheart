@@ -1,4 +1,4 @@
-import * as Levee from 'levee';
+import { createBreaker } from '@bbc/http-transport-circuit-breaker';
 import * as _ from 'lodash';
 import { ClientParams } from '../core/clientParams';
 import { RequestOptions, RestClient } from '../core/restClient';
@@ -42,7 +42,7 @@ export class CircuitBreaker implements RestClient {
       openErrMsg: `[${params.name}] Circuit breaker is open`
     };
 
-    const breaker = Levee.createBreaker({ execute: getExecutor(client) }, opts);
+    const breaker = createBreaker({ execute: getExecutor(client) }, opts);
 
     if (params.stats) {
       breaker.on('open', () => {
