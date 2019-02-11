@@ -1,13 +1,20 @@
 {
   "name": "flashheart",
-  "version": "2.9.0",
+  "version": "3.0.0",
   "description": "A fully-featured REST client built for ease-of-use and resilience",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
-    "test": "mocha --exit",
-    "lint": "jshint .",
-    "coverage": "nyc mocha --exit",
-    "posttest": "npm run lint"
+    "prepublish": "npm run build",
+    "build": "npm run clean && tsc",
+    "watch": "tsc --watch",
+    "clean": "rm -fr dist/*",
+    "pretest": "npm run build",
+    "test": "mocha",
+    "posttest": "npm run lint",
+    "lint": "tslint --project tsconfig.json --format stylish",
+    "coverage": "nyc mocha && nyc report --reporter=html && nyc report --reporter=json-summary",
+    "jsdoc": "jsdoc -c ./docconfig/jsdoc.json"
   },
   "repository": {
     "type": "git",
@@ -28,38 +35,55 @@
   "bugs": {
     "url": "https://github.com/bbc/flashheart/issues"
   },
-  "homepage": "https://github.com/bbc/flashheart#readme",
   "devDependencies": {
-    "async": "^2.0.0",
-    "chai": "^3.2.0",
-    "jshint": "^2.9.6",
-    "mocha": "^5.2.0",
-    "nock": "^9.0.4",
-    "nyc": "^13.0.1",
-    "sinon": "^1.15.3"
-  },
-  "jshintConfig": {
-    "quotmark": "single",
-    "unused": true,
-    "undef": true,
-    "node": true,
-    "esnext": true,
-    "globals": {
-      "describe": false,
-      "it": false,
-      "before": false,
-      "beforeEach": false,
-      "after": false,
-      "afterEach": false
-    }
+    "@types/chai": "^4.1.4",
+    "@types/lodash": "^4.14.119",
+    "@types/mocha": "^2.2.43",
+    "@types/nock": "^9.3.0",
+    "@types/redis": "^2.8.6",
+    "@types/sinon": "^7.0.3",
+    "babel-eslint": "^8.2.2",
+    "chai": "^4.1.2",
+    "eslint": "^4.19.1",
+    "eslint-config-iplayer-base": "^1.0.0",
+    "express": "^4.16.3",
+    "istanbul": "^1.1.0-alpha.1",
+    "jsdoc": "^3.5.5",
+    "mocha": "^2.1.0",
+    "nock": "^9.6.1",
+    "nyc": "^11.2.1",
+    "sinon": "^7.2.2",
+    "ts-node": "^3.3.0",
+    "tslint": "^5.8.0",
+    "tslint-config-airbnb": "^5.3.1",
+    "tslint-microsoft-contrib": "^5.0.3",
+    "typescript": "^2.6.1"
   },
   "dependencies": {
-    "debug": "^2.2.0",
-    "levee": "^1.2.0",
-    "lodash": "^4.17.11",
-    "request": "^2.88.0",
-    "retry": "^0.10.0",
-    "simple-rate-limiter": "^0.2.3",
-    "wreck": "^12.5.0"
-  }
+    "@bbc/http-transport": "^3.5.1",
+    "@bbc/http-transport-cache": "^3.0.3",
+    "@bbc/http-transport-request-collapse": "^3.1.0",
+    "@bbc/http-transport-statsd": "^2.0.1",
+    "@bbc/http-transport-to-error": "^2.0.1",
+    "catbox": "^10.0.3",
+    "catbox-memory": "^3.1.2",
+    "levee": "^1.4.0",
+    "lodash": "^4.17.10",
+    "request": "^2.88.0"
+  },
+  "nyc": {
+    "include": [
+      "src/**/*.ts"
+    ],
+    "extension": [
+      ".ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ],
+    "sourceMap": true,
+    "instrument": true
+  },
+  "nodeVersion": ">= 8.0.0",
+  "prune": false
 }
