@@ -1,3 +1,4 @@
+import { events } from '@bbc/http-transport-cache';
 import * as Catbox from 'catbox';
 import * as Memory from 'catbox-memory';
 import { assert } from 'chai';
@@ -18,7 +19,16 @@ const sandbox = sinon.createSandbox();
 
 const host = 'http://localhost:5555';
 const requestOptions = { headers: { body: { x: 1 } } };
-const memoryCacheParams = { name: 'testing', memoryCache: { maxSize: 1000 } };
+const memoryCacheParams = { 
+  name: 'testing',
+  memoryCache: {
+    maxSize: 1000
+  },
+  stats: {
+    increment: sinon.spy(),
+    timing: () => {}
+  }
+};
 
 function createStubbedCatbox(): any {
   return {
@@ -68,6 +78,10 @@ describe('Caching integration', () => {
     nock.cleanAll();
     nock.enableNetConnect();
   });
+
+  afterEach(() => {
+    sandbox.restore();
+  })
 
   describe('Memory caching', () => {
     it('caches based on max-age', async () => {
@@ -125,10 +139,6 @@ describe('Caching integration', () => {
   });
 
   describe('External caching', () => {
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it('caches based on max-age', async () => {
       nock(host)
         .get('/path')
@@ -207,10 +217,6 @@ describe('Caching integration', () => {
   });
 
   describe('Multi-layered caching', () => {
-    afterEach(() => {
-      sandbox.restore();
-    });
-
     it('returns cached response', async () => {
       const expectedResponse = { x: 1 };
       const responseHeaders = { 'Cache-Control': 'max-age=2' };
@@ -249,8 +255,8 @@ describe('Caching integration', () => {
 
     it('uses external cache when memory cache has expired', async () => {
       const cache = new Catbox.Client(new Memory({}));
-      const getSpy = sinon.stub(cache, 'get').resolves(null); // simulate cache MISS
-      sinon.stub(memoryCache, 'createCache').returns(cache);
+      const getSpy = sandbox.stub(cache, 'get').resolves(null); // simulate cache MISS
+      sandbox.stub(memoryCache, 'createCache').returns(cache);
 
       const expectedResponse = { x: 1 };
       const responseHeaders = { 'Cache-Control': 'max-age=1' };
@@ -266,6 +272,123 @@ describe('Caching integration', () => {
       const fromExternalCache = await client.get(`${host}/path`, requestOptions);
       assert.deepEqual(fromExternalCache.body, { x: 1 });
       sinon.assert.called(getSpy);
+    });
+  });
+
+  describe('Events', () => {
+    it('emits cache miss event and reports via stats client', async () => {
+      nock(host)
+        .get('/path')
+        .times(1)
+        .reply(200);
+
+      let cacheMiss = false;
+      events.on('cache.testingmemory.miss', () => {
+        cacheMiss = true;
+      });
+
+      const client = createClient(memoryCacheParams);
+      const res = await client.get(`${host}/path`);
+
+      assert.ok(cacheMiss);
+      assert.equal(memoryCacheParams.stats.increment.calledWith('testing.memory_cache.misses', 1, 0.05), true);
+    });
+
+    it('emits cache hit event and reports via stats client', async () => {
+      nock(host)
+        .get('/path')
+        .times(2)
+        .reply(200, { x: '1' }, { 'Cache-Control': 'max-age=10' });
+
+      let cacheHit = false;
+      events.on('cache.testingmemory.hit', () => {
+        cacheHit = true;
+      });
+
+      const client = createClient(memoryCacheParams);
+      await client.get(`${host}/path`);
+      await client.get(`${host}/path`);
+
+      assert.ok(cacheHit);
+      assert.equal(memoryCacheParams.stats.increment.calledWith('testing.memory_cache.hits', 1, 0.05), true);
+    });
+
+    it('emits cache stale event and reports via stats client', async () => {
+      nock(host)
+        .get('/path')
+        .reply(200, { x: 2 }, { 'Cache-Control': 'max-age=1,stale-if-error=2' });
+
+      nock(host)
+        .get('/path')
+        .reply(500);
+
+      let cacheStale = false;
+      events.on('cache.testingmemory.stale', () => {
+        cacheStale = true;
+      });
+
+      const client = createClient(memoryCacheParams);
+      await client.get(`${host}/path`, requestOptions);
+      await sleep(1000);
+      await client.get(`${host}/path`, requestOptions);
+
+      assert.ok(cacheStale);
+      assert.equal(memoryCacheParams.stats.increment.calledWith('testing.memory_cache.stale', 1, 0.05), true);
+    });
+
+    it('emits cache error event', async () => {
+      const cache = new Catbox.Client(new Memory({}));
+      sandbox.stub(cache, 'get').rejects(new Error('error')); // simulate cache error
+      sandbox.stub(memoryCache, 'createCache').returns(cache);
+
+      nock(host).get('/path').reply(200);
+      
+      let cacheError = false;
+      events.on('cache.testingmemory.error', () => {
+        cacheError = true;
+      });
+
+      const client = createClient(memoryCacheParams);
+
+      try {
+        await client.get(`${host}/path`);
+      } catch (e) {
+        assert.ok(cacheError);
+        return assert.equal(memoryCacheParams.stats.increment.calledWith('testing.memory_cache.errors'), true);
+      }
+    });
+
+    it('emits cache timeout event and reports via stats client', async () => {
+      const clientParams = {
+        ...createParamsWithExternalCache(),
+        externalCache: {
+          ...createParamsWithExternalCache().externalCache,
+          timeout: 10
+        },
+        stats: {
+          increment: sinon.spy(),
+          timing: () => {}
+        }
+      };
+
+      sandbox.stub(clientParams.externalCache.cache, 'get').callsFake(async () => {
+        await sleep(1000);
+      });
+
+      nock(host)
+        .get('/path')
+        .reply(200);
+
+      let cacheTimeout = false;
+      events.on('cache.testing.timeout', () => {
+        cacheTimeout = true;
+      });
+
+      const client = createClient(clientParams);
+      await client.get(`${host}/path`);
+
+      assert.ok(cacheTimeout);
+      assert.equal(clientParams.stats.increment.calledWith('testing.cache.timeouts'), true);
     });
   });
 });
