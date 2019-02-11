@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Home - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="HttpTransportClient.html">HttpTransportClient</a><ul class='methods'><li data-type='method'><a href="HttpTransportClient.html#delete">delete</a></li><li data-type='method'><a href="HttpTransportClient.html#get">get</a></li><li data-type='method'><a href="HttpTransportClient.html#head">head</a></li><li data-type='method'><a href="HttpTransportClient.html#post">post</a></li><li data-type='method'><a href="HttpTransportClient.html#put">put</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+
+    
+
+
+
+    
+
+
+
+
+
+
+
+
+
+    
+
+
+    <section class="readme">
+        <article><h1>Flasheart</h1><blockquote>
+<p> A fully-featured REST client built for ease-of-use and resilience</p>
+</blockquote>
+<h2>Features</h2><ul>
+<li><a href="#circuit-breaker">Circuit breaker</a></li>
+<li><a href="#caching">Caching</a></li>
+<li><a href="#retries">Retries</a></li>
+<li><a href="#timeout">Timeout</a></li>
+<li><a href="#logging">Logging</a></li>
+<li><a href="#json">Parses JSON responses</a></li>
+<li><a href="#errors">Understands HTTP errors</a></li>
+<li><a href="#stats">StatsD integration</a></li>
+</ul>
+<h3>Circuit breaker</h3><p>By default the client implements a circuit breaker using the <a href="https://github.com/totherik/levee">Levee</a> library. It is configured to trip after 100 failures and resets after 10 seconds. This can be configured using the <code>circuitBreakerMaxFailures</code> and <code>circuitBreakerResetTimeout</code> properties.</p>
+<p>For example to trip after 200 failures and try to reset after 30 seconds:</p>
+<pre class="prettyprint source lang-js"><code> const restClient = require('flashheart');
+ const StatsD = require('node-statsd');
+
+ const client = restClient.createClient({
+    name: 'my-client',
+    circuitbreaker: {
+      maxFailures: 200,
+      resetTimeout: 30000
+    }
+  });</code></pre><h3>Caching</h3><p>If caching is enabled, the client will cache response with a <code>max-age</code> directive. You can specify the caching storage with an instance of <a href="https://github.com/hapijs/catbox">Catbox</a> using the <code>cache</code> parameter.</p>
+<pre class="prettyprint source lang-js"><code>const Catbox = require('catbox').Client;
+const Memory = require('catbox-memory');
+const storage = new Catbox(new Memory());
+const flashheart = require('flashheart')
+
+const client = flashheart.createClient({
+   name: 'my-client',
+   externalCache: {
+     cache: storage
+   }
+});</code></pre><p>The <code>staleIfError</code> directive is also supported. If a response has a <code>staleIfError</code> directive, the response will be cached for the duration of the <code>stale-if-error</code> directive as well as the <code>max-age</code> and will try to retrieve them in this order:</p>
+<ul>
+<li><code>max-age</code> stored version fresh version</li>
+<li><code>stale-if-error</code> stale version</li>
+</ul>
+<h3>Retries</h3><p>By default the client retries failed requests once, with a delay of 100 milliseconds between attempts. The number of times to retry and the delay between retries can be configured using the <code>retries</code> and <code>retryDelay</code> properties.</p>
+<p>For example, to retry 10 times, with a delay of 500ms:</p>
+<pre class="prettyprint source lang-js"><code> const restClient = require('flashheart');
+ const StatsD = require('node-statsd');
+
+ const client = restClient.createClient({
+    name: 'my-client',
+    retries: 10,
+    retryDelay: 500
+  });</code></pre><p>Only request errors or server errors result in a retry; <code>4XX</code> errors are <em>not</em> retried.</p>
+<h3>Timeout</h3><p>The client has a default timeout of <em>2 seconds</em>. You can override this when creating a client by setting the <code>timeout</code> property.</p>
+<pre class="prettyprint source lang-js"><code>const flashheart = require('flashheart');
+
+const client = flashheart.createClient({
+  timeout: 50
+});</code></pre><h3>Logging</h3><p>All requests can be logged at <code>info</code> level if you provide a logger that supports the standard logging API (like <code>console</code> or <a href="https://github.com/flatiron/winston">Winston</a>)</p>
+<pre class="prettyprint source lang-js"><code>const flashheart = require('flashheart');
+
+const client = flashheart.createClient({
+  logger: console
+});</code></pre><h3>JSON</h3><p>The client assumes you're working with a JSON API by default. It uses the <code>json: true</code> option in request (default client) to send the <code>Accept: application/json</code> header and automatically parse the response into an object. If you need to call an API that returns plain text, XML, animated GIFs etc. then set the <code>json</code> flag to <code>false</code> in your request options.</p>
+<h3>Errors</h3><p>Any response with a status code greater than or equal to <code>400</code> results in an error. There's no need to manually check the status code of the response. The status code is exposed as <code>err.statusCode</code> and the headers are assigned to <code>err.headers</code>. </p>
+<h3>Stats</h3><p>Metrics can be sent to <a href="https://github.com/etsy/statsd/">StatsD</a> by providing an instance of the <a href="https://github.com/sivy/node-statsd">node-statsd</a> client:</p>
+<pre class="prettyprint source lang-js"><code>const StatsD = require('node-statsd');
+const stats = new StatsD();
+const flashheart = require('flashheart');
+
+const client = flashheart.createClient({
+  stats: stats
+});</code></pre><p>The following metrics are sent from each client:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>{name}.requests</code></td>
+<td>Counter</td>
+<td>Incremented every time a request is made</td>
+</tr>
+<tr>
+<td><code>{name}.responses.{code}</code></td>
+<td>Counter</td>
+<td>Incremented every time a response is received</td>
+</tr>
+<tr>
+<td><code>{name}.request_errors</code></td>
+<td>Counter</td>
+<td>Incremented every time a request fails (timeout, DNS lookup fails etc.)</td>
+</tr>
+<tr>
+<td><code>{name}.response_time</code></td>
+<td>Timer</td>
+<td>Measures of the response time in milliseconds across all requests</td>
+</tr>
+<tr>
+<td><code>{name}.retries</code></td>
+<td>Counter</td>
+<td>Incremented every time the request retries</td>
+</tr>
+<tr>
+<td><code>{name}.attempts</code></td>
+<td>Timer</td>
+<td>Measures the number of attempts</td>
+</tr>
+<tr>
+<td><code>{name}.cache.hits</code></td>
+<td>Counter</td>
+<td>Incremented for each cache hit</td>
+</tr>
+<tr>
+<td><code>{name}.cache.misses</code></td>
+<td>Counter</td>
+<td>Incremented for each cache miss</td>
+</tr>
+<tr>
+<td><code>{name}.cache.errors</code></td>
+<td>Counter</td>
+<td>Incremented whenever there's is a problem communicating with the cache</td>
+</tr>
+</tbody>
+</table>
+<p>The <code>{name}</code> variable comes from the <code>name</code> option you pass to <code>createClient</code>. It defaults to <code>http</code> if you don't name your client.</p></article>
+    </section>
+
+
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Feb 11 2019 14:47:39 GMT+0000 (GMT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>

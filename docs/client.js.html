@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>client.js - Documentation</title>
+
+    <script src="scripts/prettify/prettify.js"></script>
+    <script src="scripts/prettify/lang-css.js"></script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+
+<input type="checkbox" id="nav-trigger" class="nav-trigger" />
+<label for="nav-trigger" class="navicon-button x">
+  <div class="navicon"></div>
+</label>
+
+<label for="nav-trigger" class="overlay"></label>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="HttpTransportClient.html">HttpTransportClient</a><ul class='methods'><li data-type='method'><a href="HttpTransportClient.html#delete">delete</a></li><li data-type='method'><a href="HttpTransportClient.html#get">get</a></li><li data-type='method'><a href="HttpTransportClient.html#head">head</a></li><li data-type='method'><a href="HttpTransportClient.html#post">post</a></li><li data-type='method'><a href="HttpTransportClient.html#put">put</a></li></ul></li></ul>
+</nav>
+
+<div id="main">
+    
+    <h1 class="page-title">client.js</h1>
+    
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const httpTransport = require("@bbc/http-transport");
+const _ = require("lodash");
+const configuration_1 = require("./configuration");
+const REDIRECT = '3';
+class HttpTransportClient {
+    /**
+     * HttpTransport rest client implementation
+     * @param {ClientParams} params - Client parameters
+     * @see ClientParams
+     */
+    constructor(params) {
+        this.params = params;
+        this.timeout = _.get(this.params, 'timeout', configuration_1.defaultRequestOptions.timeout);
+        this.client = configuration_1.configureClient(params);
+    }
+    async patch(uri, body, opts) {
+        const req = this.client.patch(uri, body);
+        const res = await req
+            .headers(_.get(opts, 'headers'))
+            .query(_.get(opts, 'qs'))
+            .asResponse();
+        return this.toResponse(res);
+    }
+    /**
+     * Executes a HTTP GET
+     *
+     * @return a Promise&lt;Response> instance
+     * @param {string} uri - uri to request
+     * @param {RequestOptions} opts - optional request configuration
+     */
+    async get(uri, opts) {
+        const req = this.client.get(uri);
+        const res = await req
+            .headers(_.get(opts, 'headers'))
+            .timeout(this.timeout)
+            .query(_.get(opts, 'qs'))
+            .asResponse();
+        return this.toResponse(res);
+    }
+    /**
+     * Executes a HTTP POST
+     *
+     * @return a Promise&lt;Response> instance
+     * @param {string} uri - uri to request
+     * @param {RequestBody} body - request body
+     * @param {RequestOptions} opts - optional request configuration
+     */
+    async post(uri, body, opts) {
+        const req = this.client.post(uri, body);
+        const res = await req
+            .headers(_.get(opts, 'headers'))
+            .query(_.get(opts, 'qs'))
+            .asResponse();
+        return this.toResponse(res);
+    }
+    /**
+     * Executes a HTTP PUT
+     *
+     * @return a Promise&lt;Response> instance
+     * @param {string} uri - uri to request
+     * @param {RequestBody} body - request body
+     * @param {RequestOptions} opts - optional request configuration
+     */
+    async put(uri, body, opts) {
+        const req = this.client;
+        if (opts &amp;&amp; opts.json !== undefined) {
+            req.use(httpTransport.setContextProperty({
+                json: opts.json
+            }, 'opts'));
+        }
+        const res = await req.put(uri, body)
+            .headers(_.get(opts, 'headers'))
+            .query(_.get(opts, 'qs'))
+            .asResponse();
+        return this.toResponse(res);
+    }
+    /**
+     * Executes a HTTP HEAD
+     *
+     * @return a Promise&lt;Response> instance
+     * @param {string} uri - uri to request
+     * @param {RequestOptions} opts - optional request configuration
+     */
+    async head(uri, opts) {
+        const req = this.client.head(uri);
+        const res = await req
+            .headers(_.get(opts, 'headers'))
+            .query(_.get(opts, 'qs'))
+            .asResponse();
+        return this.toResponse(res);
+    }
+    /**
+     * Executes a HTTP DELETE
+     *
+     * @return a Promise&lt;Response> instance
+     * @param {string} uri - uri to request
+     * @param {RequestOptions} opts - optional request configuration
+     */
+    async delete(uri, opts) {
+        const req = this.client.delete(uri);
+        const res = await req
+            .headers(_.get(opts, 'headers'))
+            .query(_.get(opts, 'qs'))
+            .asResponse();
+        return this.toResponse(res);
+    }
+    toResponse(res) {
+        return {
+            body: res.body,
+            headers: res.headers,
+            ok: res.statusCode === 200,
+            redirected: res.statusCode.toString().slice(0, 1) === REDIRECT,
+            status: res.statusCode,
+            statusText: _.get(res, 'httpResponse.statusMessage'),
+            url: res.url
+        };
+    }
+}
+exports.HttpTransportClient = HttpTransportClient;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.5.5</a> on Mon Feb 11 2019 14:47:39 GMT+0000 (GMT) using the <a href="https://github.com/clenemt/docdash">docdash</a> theme.
+</footer>
+
+<script>prettyPrint();</script>
+<script src="scripts/linenumber.js"></script>
+</body>
+</html>
