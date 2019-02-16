@@ -26,6 +26,8 @@
     "cache",
     "circuit",
     "breaker",
+    "rate",
+    "limiting",
     "rest",
     "http",
     "json",
@@ -62,12 +64,13 @@
   "dependencies": {
     "@bbc/http-transport": "^3.5.1",
     "@bbc/http-transport-cache": "^3.0.3",
+    "@bbc/http-transport-circuit-breaker": "^1.2.0",
+    "@bbc/http-transport-rate-limiter": "^1.0.1",
     "@bbc/http-transport-request-collapse": "^3.1.0",
     "@bbc/http-transport-statsd": "^2.0.1",
     "@bbc/http-transport-to-error": "^2.1.1",
     "catbox": "^10.0.3",
     "catbox-memory": "^3.1.2",
-    "@bbc/http-transport-circuit-breaker": "^1.2.0",
     "lodash": "^4.17.10",
     "request": "^2.88.0"
   },

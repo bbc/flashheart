@@ -51,6 +51,8 @@ export interface ClientParams {
   logger?: Logger;
   retries?: number;
   retryDelay?: number;
+  rateLimit?: number;
+  rateLimitInterval?: number;
   timeout?: number;
   circuitbreaker?: CircuitBreakerConfiguration;
   memoryCache?: InMemoryCacheConfiguration;

@@ -1,5 +1,6 @@
 import * as httpTransport from '@bbc/http-transport';
 import { events, maxAge, staleIfError } from '@bbc/http-transport-cache';
+import * as rateLimit from '@bbc/http-transport-rate-limiter';
 import * as collapsing from '@bbc/http-transport-request-collapse';
 import * as stats from '@bbc/http-transport-statsd';
 import * as toError from '@bbc/http-transport-to-error';
@@ -141,6 +142,7 @@ export function configureClient(params: ClientParams): httpTransport.HttpTranspo
     .retryDelay(getRetryDelay(params))
     .use(toError());
 
+  if (params.rateLimit && params.rateLimitInterval) { builder.use(rateLimit(params.rateLimit, params.rateLimitInterval)); }
   if (params.userAgent !== undefined) { builder.userAgent(params.userAgent); }
   if (params.collapsing) { configureCollapsing(builder, params); }
   if (params.memoryCache) { configureMemoryCache(builder, params); }
