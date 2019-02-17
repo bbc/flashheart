@@ -8,11 +8,11 @@ const rateLimitInterval = 1000;
 const defaultParams = { name: 'testing' };
 const rateLimitParams = { ...defaultParams, rateLimit, rateLimitInterval };
 
-function checkNumberRequests(resolve: any, reject: any, actualRequest: number): void {
-  if (actualRequest === rateLimit) {
+function checkNumberRequests(resolve: any, reject: any, actualRequest: number, expectingRequest: number): void {
+  if (actualRequest === expectingRequest) {
     resolve();
   } else {
-    reject(`number of requests expecting=${rateLimit}, actual=${actualRequest}`);
+    reject(`number of requests: expecting=${expectingRequest}, actual=${actualRequest}`);
   }
 }
 
@@ -33,11 +33,11 @@ describe('Rate limiting integration', () => {
     let actualRequest = 0;
     const timeout = new Promise((resolve, reject) => {
       setTimeout(() => {
-        checkNumberRequests(resolve, reject, actualRequest);
+        checkNumberRequests(resolve, reject, actualRequest, rateLimit * 2);
       }, rateLimitInterval);
     });
 
-    for (let i = 0; i < rateLimit; i++) {
+    for (let i = 0; i < rateLimit * 2; i++) {
       await client.get(defaultHost, { headers: { Status: 200 } });
       actualRequest++;
     }
@@ -51,7 +51,7 @@ describe('Rate limiting integration', () => {
     let actualRequest = 0;
     const timeout = new Promise((resolve, reject) => {
       setTimeout(() => {
-        checkNumberRequests(resolve, reject, actualRequest);
+        checkNumberRequests(resolve, reject, actualRequest, rateLimit);
       }, rateLimitInterval);
     });
 
@@ -69,7 +69,7 @@ describe('Rate limiting integration', () => {
     let actualRequest = 0;
     const timeout = new Promise((resolve, reject) => {
       setTimeout(() => {
-        checkNumberRequests(resolve, reject, actualRequest);
+        checkNumberRequests(resolve, reject, actualRequest, rateLimit);
       }, rateLimitInterval);
     });
 
@@ -87,7 +87,7 @@ describe('Rate limiting integration', () => {
     let actualRequest = 0;
     const timeout = new Promise((resolve, reject) => {
       setTimeout(() => {
-        checkNumberRequests(resolve, reject, actualRequest);
+        checkNumberRequests(resolve, reject, actualRequest, rateLimit);
       }, rateLimitInterval);
     });
 
@@ -105,7 +105,7 @@ describe('Rate limiting integration', () => {
     let actualRequest = 0;
     const timeout = new Promise((resolve, reject) => {
       setTimeout(() => {
-        checkNumberRequests(resolve, reject, actualRequest);
+        checkNumberRequests(resolve, reject, actualRequest, rateLimit);
       }, rateLimitInterval);
     });
 
@@ -123,7 +123,7 @@ describe('Rate limiting integration', () => {
     let actualRequest = 0;
     const timeout = new Promise((resolve, reject) => {
       setTimeout(() => {
-        checkNumberRequests(resolve, reject, actualRequest);
+        checkNumberRequests(resolve, reject, actualRequest, rateLimit);
       }, rateLimitInterval);
     });
 
@@ -141,7 +141,7 @@ describe('Rate limiting integration', () => {
     let actualRequest = 0;
     const timeout = new Promise((resolve, reject) => {
       setTimeout(() => {
-        checkNumberRequests(resolve, reject, actualRequest);
+        checkNumberRequests(resolve, reject, actualRequest, rateLimit);
       }, rateLimitInterval);
     });
 
