@@ -1,6 +1,6 @@
 {
   "name": "flashheart",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "A fully-featured REST client built for ease-of-use and resilience",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -61,7 +61,7 @@
   },
   "dependencies": {
     "@bbc/http-transport": "^3.5.1",
-    "@bbc/http-transport-cache": "^3.0.3",
+    "@bbc/http-transport-cache": "^3.3.1",
     "@bbc/http-transport-request-collapse": "^3.1.0",
     "@bbc/http-transport-statsd": "^2.0.1",
     "@bbc/http-transport-to-error": "^2.1.1",
