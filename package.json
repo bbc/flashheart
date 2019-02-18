@@ -1,6 +1,6 @@
 {
   "name": "flashheart",
-  "version": "3.0.2",
+  "version": "3.0.3",
   "description": "A fully-featured REST client built for ease-of-use and resilience",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -47,11 +47,10 @@
     "eslint": "^4.19.1",
     "eslint-config-iplayer-base": "^1.0.0",
     "express": "^4.16.3",
-    "istanbul": "^1.1.0-alpha.1",
     "jsdoc": "^3.5.5",
     "mocha": "^5.2.0",
     "nock": "^9.6.1",
-    "nyc": "^11.2.1",
+    "nyc": "^13.3.0",
     "sinon": "^7.2.2",
     "ts-node": "^3.3.0",
     "tslint": "^5.8.0",
@@ -60,9 +59,9 @@
     "typescript": "^2.6.1"
   },
   "dependencies": {
-    "@bbc/http-transport": "^3.5.1",
+    "@bbc/http-transport": "^3.5.2",
     "@bbc/http-transport-cache": "^3.3.1",
-    "@bbc/http-transport-request-collapse": "^3.1.0",
+    "@bbc/http-transport-request-collapse": "^3.1.1",
     "@bbc/http-transport-statsd": "^2.0.1",
     "@bbc/http-transport-to-error": "^2.1.1",
     "catbox": "^10.0.3",
