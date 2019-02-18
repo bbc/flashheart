@@ -188,7 +188,7 @@ describe('Caching integration', () => {
 
       sinon.assert.calledWith(catbox.set, {
         id: 'GET:https://example.api.co.uk/episodes',
-        segment: 'http-transport:3.1.0:body'
+        segment: 'http-transport:3.3.1:body'
       }, sinon.match.any, 30000);
     });
 
@@ -211,7 +211,7 @@ describe('Caching integration', () => {
 
       sinon.assert.calledWith(catbox.set, {
         id: 'GET:https://example.api.co.uk/episodes?fast-mode=true',
-        segment: 'http-transport:3.1.0:body'
+        segment: 'http-transport:3.3.1:body'
       });
     });
   });
