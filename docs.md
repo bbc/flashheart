@@ -7,6 +7,7 @@
 * [Circuit breaker](#circuit-breaker)
 * [Caching](#caching)
 * [Retries](#retries)
+* [Rate Limiting](#ratelimiting)
 * [Timeout](#timeout)
 * [Logging](#logging)
 * [Parses JSON responses](#json)
@@ -74,6 +75,20 @@ For example, to retry 10 times, with a delay of 500ms:
 ```
 
 Only request errors or server errors result in a retry; `4XX` errors are _not_ retried.
+
+### Rate Limiting
+
+The client has no rate limitation by default. You can specify how many requests are allowed to happen within a given interval - respectively with the `rateLimit` and `rateLimitInterval` properties.	
+
+ ```js	
+const restClient = require('flashheart');
+const client = restClient.createClient({	
+  rateLimit: 10,         // Allow a maxmimum of 10 requests…	
+  rateLimitInterval: 6000,    // In an interval of 6 seconds (6000ms)	
+});
+```	
+
+ *Note*: rate limiting is provided by [simple-rate-limiter](https://www.npmjs.com/package/simple-rate-limiter).	
 
 ### Timeout
 
