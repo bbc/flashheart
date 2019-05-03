@@ -48,7 +48,8 @@ const client = flashheart.createClient({
    name: 'my-client',
    externalCache: {
      cache: storage
-   }
+   },
+  // varyOn: [ 'accept-language' ] - optional, refer to https://github.com/bbc/http-transport-cache#cache-key-structure
 });
 ```
 
