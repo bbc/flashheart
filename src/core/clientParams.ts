@@ -1,7 +1,6 @@
 import { defaultTransport } from '@bbc/http-transport';
 import * as request from 'request';
 
-
 type RequestClient = request.RequestAPI<request.Request, request.CoreOptions, request.RequiredUriUrl>;
 export interface CircuitBreakerConfiguration {
   maxFailures: number;
