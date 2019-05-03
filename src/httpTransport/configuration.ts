@@ -4,7 +4,6 @@ import * as rateLimit from '@bbc/http-transport-rate-limiter';
 import * as collapsing from '@bbc/http-transport-request-collapse';
 import * as stats from '@bbc/http-transport-statsd';
 import * as toError from '@bbc/http-transport-to-error';
-import * as _ from 'lodash';
 import * as request from 'request';
 import * as memoryCache from '../caching/memory';
 import { ClientParams, Stats } from '../core/clientParams';
@@ -45,7 +44,8 @@ function getRetryDelay(params: ClientParams): number {
 function configureMemoryCache(builder: any, params: ClientParams): void {
   const cache = memoryCache.createCache(params.memoryCache);
   const cacheOpts = {
-    name: `${params.name}memory`
+    name: `${params.name}memory`,
+    varyOn: params.varyOn
   };
   builder.use(maxAge(cache, cacheOpts));
   builder.use(staleIfError(cache, cacheOpts));
@@ -94,7 +94,8 @@ function configureStatsEvents(params: StatsEventsOpts): void {
 function configureExternalCache(builder: any, params: ClientParams): void {
   const cache = params.externalCache.cache;
   const cacheOpts: any = {
-    name: params.name
+    name: params.name,
+    varyOn: params.varyOn
   };
 
   if (params.externalCache.timeout) {
