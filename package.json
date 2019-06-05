@@ -1,6 +1,6 @@
 {
   "name": "flashheart",
-  "version": "3.2.0",
+  "version": "3.2.1",
   "description": "A fully-featured REST client built for ease-of-use and resilience",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
