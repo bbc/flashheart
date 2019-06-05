@@ -67,6 +67,7 @@ export class HttpTransportClient implements RestClient {
     const req = this.client.post(uri, body);
     const res = await req
       .headers(_.get(opts, 'headers'))
+      .timeout(this.timeout)
       .query(_.get(opts, 'qs'))
       .asResponse();
 
@@ -92,6 +93,7 @@ export class HttpTransportClient implements RestClient {
 
     const res = await req.put(uri, body)
       .headers(_.get(opts, 'headers'))
+      .timeout(this.timeout)
       .query(_.get(opts, 'qs'))
       .asResponse();
 
