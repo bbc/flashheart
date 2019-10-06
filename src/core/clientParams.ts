@@ -47,7 +47,7 @@ export interface ClientParams {
   userAgent?: string;
   collapsing?: CollapsingConfiguration;
   stats?: Stats;
-  logger?: Logger;
+  logger?: Logger | Console;
   retries?: number;
   retryDelay?: number;
   rateLimit?: number;
