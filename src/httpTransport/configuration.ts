@@ -143,13 +143,27 @@ export function configureClient(params: ClientParams): httpTransport.HttpTranspo
     .retryDelay(getRetryDelay(params))
     .use(toError());
 
-  if (params.rateLimit && params.rateLimitInterval) { builder.use(rateLimit(params.rateLimit, params.rateLimitInterval)); }
-  if (params.userAgent !== undefined) { builder.userAgent(params.userAgent); }
-  if (params.collapsing) { configureCollapsing(builder, params); }
-  if (params.memoryCache) { configureMemoryCache(builder, params); }
-  if (params.externalCache) { configureExternalCache(builder, params); }
-  if (params.logger) { builder.use(logger(params.logger)); }
-  if (params.stats) { builder.use(stats(params.stats, params.name)); }
+  if (params.rateLimit && params.rateLimitInterval) {
+    builder.use(rateLimit(params.rateLimit, params.rateLimitInterval));
+  }
+  if (params.userAgent !== undefined) {
+    builder.userAgent(params.userAgent);
+  }
+  if (params.collapsing) {
+    configureCollapsing(builder, params);
+  }
+  if (params.memoryCache) {
+    configureMemoryCache(builder, params);
+  }
+  if (params.externalCache) {
+    configureExternalCache(builder, params);
+  }
+  if (params.logger) {
+    builder.use(logger(params.logger));
+  }
+  if (params.stats) {
+    builder.use(stats(params.stats, params.name));
+  }
 
   return builder.createClient();
 }

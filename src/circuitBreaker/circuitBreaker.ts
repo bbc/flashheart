@@ -12,7 +12,7 @@ function isFailure(err: any): boolean {
 }
 
 function getExecutor(client: RestClient): any {
-  return function (...args: any[]): any { // tslint:disable-line no-function-expression
+  return function (...args: any[]): any {
     const method = args[0];
     const rest = args.slice(1, args.length - 1);
     const cb = args[args.length - 1];

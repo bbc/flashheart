@@ -3,7 +3,7 @@ import { createClient } from '../../src';
 import { RequestOptions, RestClient } from '../../src/core/restClient';
 import { createServer } from './fakeServer';
 
-function sleep(ms: number = 200): Promise<void> {
+function sleep(ms = 200): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve();
@@ -15,7 +15,7 @@ const defaultHost = 'http://localhost:5555';
 const defaultRequestOpts = { headers: { Status: 500 } };
 const defaultParams = { name: 'testing', circuitbreaker: { resetTimeout: 100, maxFailures: 2 } };
 
-function generateFailingCalls(client: RestClient, method: string = 'get', host: string = defaultHost, opts: RequestOptions = defaultRequestOpts): any {
+function generateFailingCalls(client: RestClient, method = 'get', host: string = defaultHost, opts: RequestOptions = defaultRequestOpts): any {
   return async (times: number) => {
     const errors = [];
     for (let i = 0; i < times; i++) {
