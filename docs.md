@@ -153,7 +153,6 @@ The following metrics are sent from each client:
 
 The `{name}` variable comes from the `name` option you pass to `createClient`. It defaults to `http` if you don't name your client.
 
-
 ### Custom HTTP Client
 
 By default, Flashheart uses [request](https://github.com/request/request) under the hood and configures it with a set of [default values](https://github.com/bbc/flashheart/blob/a69566f41717b906a50166a7bb60d823403ae1c3/src/httpTransport/configuration.ts#L24). You can however, configure and pass in your own instance of request (for example, if you need to use certificates). This can be done by setting `httpClient` property when creating Flashheart client. Please also note that in order for this to work, you need to use another layer of abstraction and pull in [@bbc/http-transport](https://github.com/bbc/http-transport/blob/63e394360c96d12cbe7278e8cde7b8aeca8dc489/index.js#L7).
