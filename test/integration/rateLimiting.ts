@@ -148,7 +148,6 @@ describe('Rate limiting integration', () => {
     const httpMethods = ['get', 'post', 'put', 'patch', 'delete'];
     const opts: RequestOptions = { headers: { Status: 200 } };
     for (let i = 0; i < rateLimit * 2; i++) {
-      // tslint:disable-next-line:insecure-random
       const httpMethod = httpMethods[Math.floor(Math.random() * httpMethods.length)];
       if (httpMethod === 'get' || httpMethod === 'delete') {
         await client[httpMethod](defaultHost, opts);

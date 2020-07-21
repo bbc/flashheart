@@ -7,6 +7,14 @@ import { createClient } from '../../src';
 const host = 'http://localhost:5555';
 const requestOptions = { headers: { body: { x: 1 } } };
 
+function requests(n: any, client: any): Promise<any>[] {
+  const pending = [];
+  for (let i = 0; i < n; ++i) {
+    pending.push(client.get(`${host}/path`));
+  }
+  return pending;
+}
+
 describe('Request collapsing', () => {
   beforeEach(() => {
     nock.disableNetConnect();
@@ -57,7 +65,7 @@ describe('Request collapsing', () => {
       },
       stats: {
         increment: sinon.spy(),
-        timing: () => {}
+        timing: () => { }
       }
     };
 
@@ -74,15 +82,7 @@ describe('Request collapsing', () => {
 
     const client = createClient(clientParams);
 
-    const requests = (n) => {
-      const pending = [];
-      for (let i = 0; i < n; ++i) {
-        pending.push(client.get(`${host}/path`));
-      }
-      return pending;
-    }
-
-    await Promise.all(requests(20));
+    await Promise.all(requests(20, client));
 
     assert.ok(collapsed);
     assert.deepEqual(clientParams.stats.increment.calledWith('testing.collapsing.collapsed'), true);
