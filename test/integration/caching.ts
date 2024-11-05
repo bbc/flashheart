@@ -7,7 +7,7 @@ import * as sinon from 'sinon';
 import { ClientParams, createClient } from '../../src';
 import * as memoryCache from '../../src/caching/memory';
 
-function sleep(ms: number = 200): Promise<void> {
+function sleep(ms = 200): Promise<void> {
   return new Promise((resolve) => {
     setTimeout(() => {
       resolve();
@@ -19,14 +19,14 @@ const sandbox = sinon.createSandbox();
 
 const host = 'http://localhost:5555';
 const requestOptions = { headers: { body: { x: 1 } } };
-const memoryCacheParams = { 
+const memoryCacheParams = {
   name: 'testing',
   memoryCache: {
     maxSize: 1000
   },
   stats: {
     increment: sinon.spy(),
-    timing: () => {}
+    timing: () => { }
   }
 };
 
@@ -35,7 +35,9 @@ function createStubbedCatbox(): any {
     set: sandbox.stub(),
     get: sandbox.stub(),
     start: sandbox.stub(),
-    isReady: () => { return true; }
+    isReady: () => {
+      return true;
+    }
   };
 }
 
@@ -81,7 +83,7 @@ describe('Caching integration', () => {
 
   afterEach(() => {
     sandbox.restore();
-  })
+  });
 
   describe('Memory caching', () => {
     it('caches based on max-age', async () => {
@@ -342,7 +344,7 @@ describe('Caching integration', () => {
       sandbox.stub(memoryCache, 'createCache').returns(cache);
 
       nock(host).get('/path').reply(200);
-      
+
       let cacheError = false;
       events.on('cache.testingmemory.error', () => {
         cacheError = true;
@@ -367,7 +369,7 @@ describe('Caching integration', () => {
         },
         stats: {
           increment: sinon.spy(),
-          timing: () => {}
+          timing: () => { }
         }
       };
 

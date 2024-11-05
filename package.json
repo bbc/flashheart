@@ -12,7 +12,8 @@
     "pretest": "npm run build",
     "test": "mocha",
     "posttest": "npm run lint",
-    "lint": "tslint --project tsconfig.json --format stylish",
+    "lint": "eslint . --ext .ts",
+    "lint:fix": "eslint . --fix",
     "coverage": "nyc mocha && nyc report --reporter=html && nyc report --reporter=json-summary",
     "jsdoc": "jsdoc -c ./docconfig/jsdoc.json"
   },
@@ -46,8 +47,9 @@
     "@types/sinon": "^7.0.3",
     "babel-eslint": "^10.0.2",
     "chai": "^4.1.2",
-    "eslint": "^6.0.1",
+    "eslint": "^7.1.0",
     "eslint-config-iplayer-base": "^1.0.0",
+    "eslint-config-iplayer-ts": "^2.0.0",
     "express": "^4.16.3",
     "jsdoc": "^3.6.3",
     "mocha": "^5.2.0",
@@ -55,9 +57,6 @@
     "nyc": "^14.1.1",
     "sinon": "^7.2.2",
     "ts-node": "^3.3.0",
-    "tslint": "^5.18.0",
-    "tslint-config-airbnb": "^5.3.1",
-    "tslint-microsoft-contrib": "^5.0.3",
     "typescript": "^2.6.1"
   },
   "dependencies": {
@@ -87,5 +86,15 @@
     "instrument": true
   },
   "nodeVersion": ">= 8.0.0",
-  "prune": false
+  "prune": false,
+  "eslintConfig": {
+    "extends": "iplayer-ts",
+    "parserOptions": {
+      "ecmaVersion": 2017,
+      "sourceType": "module"
+    },
+    "rules": {
+      "@typescript-eslint/no-unused-vars": "warn"
+    }
+  }
 }

@@ -18,6 +18,6 @@ HTTP_METHODS.forEach((method) => {
   });
 });
 
-export function createServer(cb: () => {}, port: number = 5555): void {
+export function createServer(cb: () => {}, port = 5555): void {
   return app.listen(port, cb);
 }
