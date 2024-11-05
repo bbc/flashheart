@@ -1,5 +1,7 @@
 # flashheart
 
+* This repository is deprecated and no longer maintained. Please consider using another library. *
+
 <br/><p align="center"><img width="350" src="https://rawgit.com/bbc/flashheart/master/logo.png?a" alt="Flashheart"></p><br/>
 
 [![NPM downloads](https://img.shields.io/npm/dm/flashheart.svg?style=flat)](https://npmjs.org/package/flashheart)
